@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\driver">
+      <UniqueIdentifier>{79d16144-ae30-4761-97e5-29a3e76a5b0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\driver">
+      <UniqueIdentifier>{8424762b-2988-4657-a880-8da16ba64300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\exports">
+      <UniqueIdentifier>{4dc5c1ca-589b-4420-ab79-dda3f989465f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\exports">
+      <UniqueIdentifier>{29d7be4e-62e3-4563-8a9e-5665cef01d27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{322e7e8f-a612-4f25-ba64-fcf502f68d99}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="common.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="debug.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="driver\driver.h">
+      <Filter>头文件\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="driver\gate.h">
+      <Filter>头文件\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\driver\gate_func_defines.h">
+      <Filter>common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="debug.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="driver\driver.c">
+      <Filter>源文件\driver</Filter>
+    </ClCompile>
+    <ClCompile Include="driver\gate.c">
+      <Filter>源文件\driver</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="break_point.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="driver\gate_x64.asm">
+      <Filter>源文件\driver</Filter>
+    </MASM>
+    <MASM Include="driver\gate_x86.asm">
+      <Filter>源文件\driver</Filter>
+    </MASM>
+  </ItemGroup>
+</Project>

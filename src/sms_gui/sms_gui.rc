@@ -1,0 +1,480 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(简体，中国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_DLG_MAIN, DIALOG
+    BEGIN
+        VERTGUIDE, 79
+        VERTGUIDE, 363
+        VERTGUIDE, 378
+        VERTGUIDE, 420
+        VERTGUIDE, 434
+        HORZGUIDE, 193
+    END
+
+    IDD_DLG_ABOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 294
+        VERTGUIDE, 118
+        VERTGUIDE, 150
+        VERTGUIDE, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 241
+        HORZGUIDE, 210
+        HORZGUIDE, 219
+    END
+
+    IDD_DLG_MODMGR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 453
+        VERTGUIDE, 142
+        VERTGUIDE, 386
+        VERTGUIDE, 394
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 246
+        HORZGUIDE, 29
+        HORZGUIDE, 36
+        HORZGUIDE, 58
+        HORZGUIDE, 66
+        HORZGUIDE, 88
+    END
+
+    IDD_DLG_INPUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 422
+        VERTGUIDE, 110
+        VERTGUIDE, 120
+        VERTGUIDE, 180
+        VERTGUIDE, 270
+        VERTGUIDE, 330
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 46
+        HORZGUIDE, 20
+        HORZGUIDE, 27
+    END
+
+    IDD_DLG_INSTALL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 386
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 188
+        HORZGUIDE, 164
+        HORZGUIDE, 170
+    END
+
+    IDD_DLG_LICENSE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 322
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 216
+        HORZGUIDE, 191
+        HORZGUIDE, 202
+    END
+
+    IDD_DLG_IMPORT_MOD_FRAME, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 454
+        VERTGUIDE, 168
+        VERTGUIDE, 233
+        VERTGUIDE, 240
+        VERTGUIDE, 306
+        VERTGUIDE, 313
+        VERTGUIDE, 378
+        VERTGUIDE, 384
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 240
+        HORZGUIDE, 219
+    END
+
+    IDD_DLG_IMPORT_MOD_SELECT, DIALOG
+    BEGIN
+        RIGHTMARGIN, 451
+        VERTGUIDE, 162
+        BOTTOMMARGIN, 247
+        HORZGUIDE, 61
+        HORZGUIDE, 120
+    END
+
+    IDD_DLG_IMPORT_MOD_FOMOD_1, DIALOG
+    BEGIN
+        HORZGUIDE, 80
+    END
+
+    IDD_DLG_IMPORT_MOD_FOMOD_2, DIALOG
+    BEGIN
+        RIGHTMARGIN, 382
+        BOTTOMMARGIN, 167
+    END
+
+    IDD_DLG_SELECTMOD_CLASS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 208
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 171
+        HORZGUIDE, 150
+        HORZGUIDE, 156
+    END
+
+    IDD_DLG_INSTALL_MOD, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 542
+        VERTGUIDE, 238
+        VERTGUIDE, 301
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 224
+    END
+
+    IDD_DIALOG_YESNOALL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 302
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 85
+    END
+
+    IDD_DLG_INSTALL_FOMOD, DIALOG
+    BEGIN
+        RIGHTMARGIN, 530
+        VERTGUIDE, 186
+        VERTGUIDE, 264
+        VERTGUIDE, 276
+        VERTGUIDE, 354
+        VERTGUIDE, 368
+        VERTGUIDE, 444
+        VERTGUIDE, 457
+        BOTTOMMARGIN, 306
+        HORZGUIDE, 65
+        HORZGUIDE, 70
+        HORZGUIDE, 271
+        HORZGUIDE, 279
+    END
+
+    IDD_DLG_INSTALL_FOMOD_CHOICES, DIALOG
+    BEGIN
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU_MAIN MENU
+BEGIN
+    POPUP "文件(&F)"
+    BEGIN
+        MENUITEM "退出(&E)",                      ID_FILE_EXIT
+    END
+    POPUP "存档集(&A)"
+    BEGIN
+        MENUITEM "激活存档集(&A)",                   ID_SAVESETS_ACTIVE
+        MENUITEM "新建存档集(&N)",                   ID_SAVESETS_NEW
+        MENUITEM "删除存档集(&D)",                   ID_SAVESETS_DELETE
+        MENUITEM "复制存档集(&F)",                   ID_SAVESETS_FORK
+        MENUITEM "重命名存档集(&R)",                  ID_SAVESETS_RENAME
+        MENUITEM SEPARATOR
+        MENUITEM "刷新排序(&E)",                    ID_SAVESETS_REFRESHORDER
+    END
+    POPUP "mod管理(&M)"
+    BEGIN
+        MENUITEM "管理mod(&E)",                   ID_MOD_MANAGE
+        MENUITEM "安装/卸载mod(&I)",                ID_MOD_INSTALL
+        MENUITEM "创建mod(&C)",                   ID_Menu, INACTIVE
+    END
+    POPUP "帮助(&H)"
+    BEGIN
+        MENUITEM "关于(&A)",                      ID_HELP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DLG_MAIN DIALOGEX 0, 0, 585, 273
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_VISIBLE | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST_SAVESETS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,0,0,79,193
+    CONTROL         "",IDC_LIST_MODS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,79,0,284,193
+    PUSHBUTTON      "上移(&U)",IDC_BUTTON_UP,378,7,42,16
+    PUSHBUTTON      "下移(&D)",IDC_BUTTON_DOWN,378,30,42,16
+    CONTROL         "",IDC_LIST_SAVES,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,434,0,151,83
+    CONTROL         "",IDC_PICTURE_SAVE,"Static",SS_BLACKFRAME | SS_CENTERIMAGE,434,85,151,108
+    EDITTEXT        IDC_EDIT_OUTPUT,0,193,585,80,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL | WS_HSCROLL | NOT WS_TABSTOP,WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
+END
+
+IDD_DLG_ABOUT DIALOGEX 0, 0, 301, 248
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "关于"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "确定(&O)",IDC_BUTTON_OK,118,219,61,22
+    EDITTEXT        IDC_EDIT_ABOUT,7,7,287,203,ES_MULTILINE | ES_READONLY | ES_WANTRETURN | NOT WS_BORDER | WS_VSCROLL
+END
+
+IDD_DLG_MODMGR DIALOGEX 0, 0, 460, 253
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "MOD管理"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT_MODINFO,142,7,244,239,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_STATICEDGE
+    CONTROL         "",IDC_TREE_MODS,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,7,135,239,WS_EX_TRANSPARENT
+    PUSHBUTTON      "导入MOD(&I)",IDC_BUTTON_IMPORTMOD,394,7,59,22
+    PUSHBUTTON      "修改分类(&S)",IDC_BUTTON_SORTMOD,394,36,59,22
+    PUSHBUTTON      "删除MOD(&R)",IDC_BUTTON_REMOVEMOD,394,66,59,22
+END
+
+IDD_DLG_INPUT DIALOGEX 0, 0, 429, 54
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Input"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定(&O)",ID_BUTTON_OK,120,27,60,19
+    PUSHBUTTON      "取消(&C)",ID_BUTTON_CANCEL,270,27,60,19
+    LTEXT           "静态",IDC_STATIC_LABEL,7,7,103,13
+    EDITTEXT        IDC_EDIT_INPUT,110,7,312,13,ES_AUTOHSCROLL
+END
+
+IDD_DLG_INSTALL DIALOGEX 0, 0, 393, 191
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "安装信息"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定(&O)",IDC_BUTTON_OK,159,170,50,18,WS_DISABLED
+    EDITTEXT        IDC_EDIT_INSTALLINFO,7,7,379,157,ES_MULTILINE | ES_READONLY | WS_VSCROLL | WS_HSCROLL,WS_EX_CLIENTEDGE
+END
+
+IDD_DLG_LICENSE DIALOGEX 0, 0, 329, 223
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "使用许可"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "我同意(&A)",IDC_BUTTON_AGREE,79,202,50,14
+    PUSHBUTTON      "我拒绝(&D)",IDC_BUTTON_DISAGREE,189,202,50,14
+    EDITTEXT        IDC_EDIT_LICENSE,7,7,315,184,ES_MULTILINE | ES_READONLY | WS_VSCROLL,WS_EX_CLIENTEDGE
+END
+
+IDD_DLG_IMPORT_MOD_FRAME DIALOGEX 0, 0, 461, 247
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION
+CAPTION "导入MOD向导"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "上一步(&P)",IDC_BTN_PREV,168,219,65,21
+    PUSHBUTTON      "下一步(&N)",IDC_BTN_NEXT,240,219,66,21
+    PUSHBUTTON      "取消(&C)",IDC_BTN_CANCEL,384,219,70,21
+    PUSHBUTTON      "完成(&F)",IDC_BTN_FINISH,313,219,65,21
+END
+
+IDD_DLG_IMPORT_MOD_SELECT DIALOGEX 0, 0, 457, 253
+STYLE DS_SETFONT | DS_CENTER | WS_CHILD | WS_VISIBLE
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+    CONTROL         "自动分析(&A)",IDC_RADIO_FOMOD,"Button",BS_AUTORADIOBUTTON,162,61,138,15
+    CONTROL         "手动安装后导入(&M)",IDC_RADIO_MANUAL,"Button",BS_AUTORADIOBUTTON,162,120,167,15
+END
+
+IDD_DLG_IMPORT_MOD_FOMOD_1 DIALOGEX 0, 0, 526, 217
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+    LTEXT           "mod文件路径:",IDC_STATIC,89,80,61,17
+    EDITTEXT        IDC_EDIT_PATH,159,80,154,17,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "浏览(&B)",IDC_BTN_BROWSE,339,80,50,17
+END
+
+IDD_DLG_IMPORT_MOD_FOMOD_2 DIALOGEX 0, 0, 449, 227
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+    EDITTEXT        IDC_EDIT_OUTPUT,99,33,204,102,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_HSCROLL
+END
+
+IDD_DLG_SELECTMOD_CLASS DIALOGEX 0, 0, 215, 178
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "请选择一个分类"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定",IDC_BTN_OK,35,156,50,15
+    PUSHBUTTON      "取消",IDC_BTN_CANCEL,121,156,50,15
+    LISTBOX         IDC_LIST_MODCLASS,7,7,201,143,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+END
+
+IDD_DLG_INSTALL_MOD DIALOGEX 0, 0, 549, 231
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "安装/卸载mod"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_TREE_MODS_NOT_INSTALLED,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,7,221,217
+    CONTROL         "",IDC_TREE_MODS_INSTALLED,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | WS_BORDER | WS_HSCROLL | WS_TABSTOP,305,7,237,217
+    PUSHBUTTON      "安装(&I)>>",IDC_BTN_INSTALL,238,7,63,22
+    PUSHBUTTON      "<<卸载(&U)",IDC_BTN_UNINSTALL,238,36,63,22
+END
+
+IDD_DIALOG_YESNOALL DIALOGEX 0, 0, 309, 93
+STYLE DS_SYSMODAL | DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "是(&Y)",IDC_BTN_YES,42,71,50,14
+    PUSHBUTTON      "否(&N)",IDC_BTN_NO,129,71,50,14
+    PUSHBUTTON      "全部(&A)",IDC_BTN_ALL,217,71,50,14
+    LTEXT           "",IDC_LABLE_TEXT,7,7,295,55
+END
+
+IDD_DLG_INSTALL_FOMOD DIALOGEX 0, 0, 537, 313
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "title"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "上一步(&P)",IDC_BTN_PREV,186,279,78,27
+    PUSHBUTTON      "下一步(&N)",IDC_BTN_NEXT,276,279,78,27
+    PUSHBUTTON      "取消(&C)",IDC_BTN_CANCEL,457,279,73,27
+    PUSHBUTTON      "完成(&F)",IDC_BTN_FINISH,368,279,76,27
+    CONTROL         "",IDC_PIC_IMAGE,"Static",SS_BLACKFRAME,186,70,344,201
+    EDITTEXT        IDC_EDIT_DESCRIPTION,186,0,344,65,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL,WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
+END
+
+IDD_DLG_INSTALL_FOMOD_CHOICES DIALOGEX 0, 0, 213, 179
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL
+EXSTYLE WS_EX_TRANSPARENT
+FONT 9, "宋体", 400, 0, 0x86
+BEGIN
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICONMAIN            ICON                    "resources\\iconmain.ico"
+IDI_ICONFOLDER          ICON                    "resources\\iconfolder.ico"
+IDI_ICONFOMOD           ICON                    "resources\\iconfomod.ico"
+IDI_ICONMOD             ICON                    "resources\\iconmod.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXT_FILE
+//
+
+IDR_TEXT_LICENSE        TEXT_FILE               "resources\\LICENCES.txt"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,0,0,0
+ PRODUCTVERSION 2,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "CompanyName", "TODO: <公司名>"
+            VALUE "FileDescription", "TODO: <文件说明>"
+            VALUE "FileVersion", "2.0.0.0"
+            VALUE "InternalName", "sms_gui.exe"
+            VALUE "LegalCopyright", "Copyright (C) 2015"
+            VALUE "OriginalFilename", "sms_gui.exe"
+            VALUE "ProductName", "TODO: <产品名>"
+            VALUE "ProductVersion", "2.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+
+#endif    // 中文(简体，中国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

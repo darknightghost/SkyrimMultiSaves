@@ -1,0 +1,2 @@
+#TargetFrameworkVersion=v4.0:PlatformToolSet=v120:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit
+after_build|Win32|D:\Projects\SkyrimMultiSaves\2.0.0\2.0.0\|

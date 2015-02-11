@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Driver Files">
+      <UniqueIdentifier>{8E41214B-6785-4CFE-B992-037D68949A14}</UniqueIdentifier>
+      <Extensions>inf;inv;inx;mof;mc;</Extensions>
+    </Filter>
+    <Filter Include="Header Files\virtual_dir">
+      <UniqueIdentifier>{d902448e-9a0f-473e-9934-42d2c1ea06ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gate">
+      <UniqueIdentifier>{e9f04e51-9eca-43b4-bb01-af2d958224ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\data_structure">
+      <UniqueIdentifier>{f6c53713-d263-4a3e-bdfd-7eeaf3dbdd0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\data_structure">
+      <UniqueIdentifier>{f2f6d922-2cb3-4d74-afcc-e94f38572c92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\virtual_dir">
+      <UniqueIdentifier>{194b09bc-81fa-479d-b217-4628ed40bb66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gate">
+      <UniqueIdentifier>{00e92545-4a1c-4893-8e49-1f2850b8c1f6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Inf Include="sms_virtual_dir_driver.inf">
+      <Filter>Driver Files</Filter>
+    </Inf>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="break_point.asm">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="common.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="device.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sleep.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="data_structure\list.c">
+      <Filter>Source Files\data_structure</Filter>
+    </ClCompile>
+    <ClCompile Include="data_structure\pipe.c">
+      <Filter>Source Files\data_structure</Filter>
+    </ClCompile>
+    <ClCompile Include="gate\control_device.c">
+      <Filter>Source Files\gate</Filter>
+    </ClCompile>
+    <ClCompile Include="gate\gate.c">
+      <Filter>Source Files\gate</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_dir\filter.c">
+      <Filter>Source Files\virtual_dir</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_dir\fs_filter.c">
+      <Filter>Source Files\virtual_dir</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_dir\virtual_dir.c">
+      <Filter>Source Files\virtual_dir</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_dir\volume_filter.c">
+      <Filter>Source Files\virtual_dir</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="device.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sleep.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="data_structure\list.h">
+      <Filter>Header Files\data_structure</Filter>
+    </ClInclude>
+    <ClInclude Include="data_structure\pipe.h">
+      <Filter>Header Files\data_structure</Filter>
+    </ClInclude>
+    <ClInclude Include="gate\control_device.h">
+      <Filter>Header Files\gate</Filter>
+    </ClInclude>
+    <ClInclude Include="gate\gate.h">
+      <Filter>Header Files\gate</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_dir\filter.h">
+      <Filter>Header Files\virtual_dir</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_dir\fs_filter.h">
+      <Filter>Header Files\virtual_dir</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_dir\virtual_dir.h">
+      <Filter>Header Files\virtual_dir</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_dir\volume_filter.h">
+      <Filter>Header Files\virtual_dir</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
