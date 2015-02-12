@@ -1,4 +1,4 @@
---- A note on GPL versions
+﻿--- A note on GPL versions
 
   SkyrimMultiSaves is distributed under version 3 of the General Public License 
 (included in its entirety, below).  Version 3 is the only version of this
