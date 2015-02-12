@@ -30,6 +30,7 @@ void	test();
 int __cdecl main(int argc, char* argn[])
 {
 	BREAKPOINT;
+	MEM_INIT;
 
 	if(is_running()) {
 		PRINTF("The daemon process is running...\n");
@@ -61,6 +62,7 @@ int __cdecl main(int argc, char* argn[])
 	PAUSE;
 	CloseHandle(mutex_hnd);
 	PAUSE;
+	MEM_LEAK_CHK;
 	return 0;
 }
 

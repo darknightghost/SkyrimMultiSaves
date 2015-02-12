@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "common.h"
 
-#ifdef _DEBUG
 #ifndef _AMD64
 
 	#define	RAW_BREAKPOINT	_asm int 3
@@ -30,14 +29,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _AMD64
 	void		break_point();
 
-	#define	RAW_BREAKPOINT	break_point()
+	#define		RAW_BREAKPOINT	break_point()
 
 #endif // _AMD64
+
+#ifdef _DEBUG
 
 bool	is_debugger_present();
 
 #define	BREAKPOINT		if(is_debugger_present())	RAW_BREAKPOINT;
 #define	PRINTF(fmt,...)	printf(fmt,##__VA_ARGS__)
+#define	PRINT_ERR(str)		{\
+		MessageBox(NULL, (str), L"Error", MB_OK | MB_ICONERROR);\
+		RAW_BREAKPOINT;\
+	}
 #define	PAUSE	{\
 		printf("Press any key to continue...\n");\
 		fflush(stdin);\
@@ -48,11 +53,14 @@ bool	is_debugger_present();
 #endif // _DEBUG
 
 #ifndef _DEBUG
+	#ifdef _AMD64
+		void		break_point();
+	#endif	// _AMD64
 	#define	BREAKPOINT
-	#define	RAW_BREAKPOINT
 	#define	PRINTF(fmt,...)
 	#define	PAUSE
 	#define	PRTNT_ERRCODE
+	#define	PRINT_ERR(str)
 #endif // !_DEBUG
 
 

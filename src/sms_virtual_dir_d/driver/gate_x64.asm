@@ -47,7 +47,7 @@ daemon_caller:
 				;r12=Number of arguments
 				xor			r12,r12
 				mov			r12b,[rsi]
-				inc			rsi
+				add			rsi,5
 				;r13=Number of arguments dealed
 				xor			r13,r13
 				push		rbp

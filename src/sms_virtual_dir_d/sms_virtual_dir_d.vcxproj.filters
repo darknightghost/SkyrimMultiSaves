@@ -28,6 +28,15 @@
     <Filter Include="common">
       <UniqueIdentifier>{322e7e8f-a612-4f25-ba64-fcf502f68d99}</UniqueIdentifier>
     </Filter>
+    <Filter Include="common\driver">
+      <UniqueIdentifier>{b640b53a-46e2-4ef2-9a89-59674669714d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\data_structure">
+      <UniqueIdentifier>{8b24def6-f655-49a3-b662-d2e84f1e6907}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\data_structure">
+      <UniqueIdentifier>{2ec470ec-bff0-4b67-9408-db06f9d7ceba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -42,8 +51,20 @@
     <ClInclude Include="driver\gate.h">
       <Filter>头文件\driver</Filter>
     </ClInclude>
+    <ClInclude Include="..\common\driver\device_name.h">
+      <Filter>common\driver</Filter>
+    </ClInclude>
     <ClInclude Include="..\common\driver\gate_func_defines.h">
-      <Filter>common</Filter>
+      <Filter>common\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="data_structure\list.h">
+      <Filter>头文件\data_structure</Filter>
+    </ClInclude>
+    <ClInclude Include="data_structure\pipe.h">
+      <Filter>头文件\data_structure</Filter>
+    </ClInclude>
+    <ClInclude Include="mem.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +79,15 @@
     </ClCompile>
     <ClCompile Include="driver\gate.c">
       <Filter>源文件\driver</Filter>
+    </ClCompile>
+    <ClCompile Include="data_structure\list.c">
+      <Filter>源文件\data_structure</Filter>
+    </ClCompile>
+    <ClCompile Include="data_structure\pipe.c">
+      <Filter>源文件\data_structure</Filter>
+    </ClCompile>
+    <ClCompile Include="mem.c">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

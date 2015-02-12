@@ -192,17 +192,24 @@
     </MASM>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\common\driver\device_name.h" />
     <ClInclude Include="..\common\driver\gate_func_defines.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="data_structure\list.h" />
+    <ClInclude Include="data_structure\pipe.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="driver\driver.h" />
     <ClInclude Include="driver\gate.h" />
+    <ClInclude Include="mem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="data_structure\list.c" />
+    <ClCompile Include="data_structure\pipe.c" />
     <ClCompile Include="debug.c" />
     <ClCompile Include="driver\driver.c" />
     <ClCompile Include="driver\gate.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="mem.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

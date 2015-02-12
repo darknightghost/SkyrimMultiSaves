@@ -35,6 +35,12 @@
     <Filter Include="Source Files\gate">
       <UniqueIdentifier>{00e92545-4a1c-4893-8e49-1f2850b8c1f6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{88ffc3d1-d2df-4d96-ba66-5a05a0b78df3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\driver">
+      <UniqueIdentifier>{6446861b-41ed-48b3-86ad-1e322c5f0d76}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Inf Include="sms_virtual_dir_driver.inf">
@@ -121,6 +127,12 @@
     </ClInclude>
     <ClInclude Include="virtual_dir\volume_filter.h">
       <Filter>Header Files\virtual_dir</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\driver\device_name.h">
+      <Filter>common\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\driver\gate_func_defines.h">
+      <Filter>common\driver</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

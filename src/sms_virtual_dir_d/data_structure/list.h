@@ -15,21 +15,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COMMON_H_INCLUDE
-#define	COMMON_H_INCLUDE
+#ifndef LIST_H_INCLUDE
+#define	LIST_H_INCLUDE
+#include "../common.h"
 
-#include <Windows.h>
-#include <stdio.h>
+typedef	struct list_node_ {
+	struct	list_node_*		p_prev;
+	struct	list_node_*		p_next;
+	PVOID					p_item;
+} list_node, *plist_node, *list;
 
-#ifndef __cplusplus
+typedef		void (*item_destroyer)(void*);
 
-	typedef	int		bool;
-	#define	true	1
-	#define	false	0
+VOID			item_only_delete_func(void* p_item);
+plist_node		list_add_item(list* p_list, void* p_item);
+VOID			list_destroy(list* p_list, item_destroyer item_destroy_func);
+BOOLEAN			list_remove_item(list* p_list, void* p_item);
+PVOID			list_remove_item_by_maching(list* p_list, BOOLEAN(*condition)(PVOID p_item, PVOID arg), PVOID p_arg);
+VOID			list_swap_item(plist_node p1, plist_node p2);
 
-#endif // !__cplusplus
 
-#include "debug.h"
-#include "mem.h"
-
-#endif // !COMMON_H_INCLUDE
+#endif //LIST_H_INCLUDE

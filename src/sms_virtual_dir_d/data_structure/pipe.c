@@ -21,13 +21,13 @@ static	BOOLEAN			is_pipe_empty(ppipe p_pipe);
 static	BOOLEAN			is_pipe_full(ppipe p_pipe);
 static	VOID			write_buf(ppipe p_pipe, PCHAR p_input, PSIZE_T p_length_written, SIZE_T length_to_write);
 
-NTSTATUS initialize_pipe(ppipe p_pipe, SIZE_T buf_size)
+BOOLEAN initialize_pipe(ppipe p_pipe, SIZE_T buf_size)
 {
 	//Allocate memory
 	if((p_pipe->buf
-	    = (PCHAR)get_memory(buf_size, *(PULONG)"sms", NonPagedPool))
+	    = (PCHAR)get_memory(buf_size))
 	   == NULL) {
-		return STATUS_INSUFFICIENT_RESOURCES;
+		return FALSE;
 	}
 
 	p_pipe->buf_size = buf_size;
@@ -41,65 +41,46 @@ NTSTATUS initialize_pipe(ppipe p_pipe, SIZE_T buf_size)
 	p_pipe->p_end = p_pipe->p_start = p_pipe->buf;
 
 	//Initialize locks
-	KeInitializeMutex(&(p_pipe->buf_lock), 0);
-	KeInitializeEvent(&(p_pipe->read_event), NotificationEvent, TRUE);
-	KeInitializeEvent(&(p_pipe->write_event), NotificationEvent, TRUE);
-	KdPrint(("sms:Pipe initialized.Bufsize=%d.\n", buf_size));
-	return STATUS_SUCCESS;
+	InitializeCriticalSection(&(p_pipe->buf_lock));
+	p_pipe->read_event = CreateEvent(NULL, TRUE, FALSE, NULL);
+	p_pipe->write_event = CreateEvent(NULL, TRUE, FALSE, NULL);
+	return TRUE;;
 }
 
 VOID destroy_pipe(ppipe p_pipe)
 {
-	KeWaitForSingleObject(
-	    &(p_pipe->buf_lock),
-	    Executive,
-	    KernelMode,
-	    FALSE,
-	    NULL
-	);
+	EnterCriticalSection(&(p_pipe->buf_lock));
 	p_pipe->destroy_flag = TRUE;
-	KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
+	LeaveCriticalSection(&(p_pipe->buf_lock));
 
 	while(p_pipe->count > 0) {
-		KeSetEvent(&(p_pipe->read_event), 0, FALSE);
-		KeSetEvent(&(p_pipe->write_event), 0, FALSE);
-		sleep(100);
+		SetEvent(p_pipe->read_event);
+		SetEvent(p_pipe->write_event);
+		Sleep(100);
 	}
 
+	CloseHandle(p_pipe->read_event);
+	CloseHandle(p_pipe->write_event);
+	DeleteCriticalSection(&(p_pipe->buf_lock));
 	free_memory(p_pipe->buf);
-	KdPrint(("sms:Pipe destroyed.Bufsize=%d.\n", p_pipe->buf_size));
 	return;
 }
 
-NTSTATUS read_pipe(ppipe p_pipe, PVOID buf, SIZE_T buf_size, PSIZE_T p_length_read)
+BOOLEAN read_pipe(ppipe p_pipe, PVOID buf, SIZE_T buf_size, PSIZE_T p_length_read)
 {
-	NTSTATUS status;
 	PCHAR p_pipe_buf_end;
 	PCHAR p_output;
 
 
-	status = KeWaitForSingleObject(
-	             &(p_pipe->buf_lock),
-	             Executive,
-	             KernelMode,
-	             FALSE,
-	             NULL
-	         );
-
+	EnterCriticalSection(&(p_pipe->buf_lock));
 	(p_pipe->count)++;
 
-	if(!NT_SUCCESS(status)) {
-		(p_pipe->count)--;
-		return status;
-	}
-
-
 	if(p_pipe->destroy_flag) {
-		KeSetEvent(&(p_pipe->write_event), 0, FALSE);
-		KeSetEvent(&(p_pipe->read_event), 0, FALSE);
-		KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
+		SetEvent(p_pipe->write_event);
+		SetEvent(p_pipe->read_event);
+		EnterCriticalSection(&(p_pipe->buf_lock));
 		(p_pipe->count)--;
-		return STATUS_HANDLES_CLOSED;
+		return FALSE;
 	}
 
 	p_output = (PCHAR)buf;
@@ -108,44 +89,24 @@ NTSTATUS read_pipe(ppipe p_pipe, PVOID buf, SIZE_T buf_size, PSIZE_T p_length_re
 	//If the pipe is empty,wait for data.
 	while(is_pipe_empty(p_pipe)
 	      && !p_pipe->destroy_flag) {
-		KeResetEvent(&(p_pipe->write_event));
-		KeSetEvent(&(p_pipe->read_event), 0, FALSE);
-		KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
-		status = KeWaitForSingleObject(
-		             &(p_pipe->write_event),
-		             Executive,
-		             KernelMode,
-		             FALSE,
-		             NULL
-		         );
+		ResetEvent(p_pipe->write_event);
+		SetEvent(p_pipe->read_event);
+		LeaveCriticalSection(&(p_pipe->buf_lock));
+		WaitForSingleObject(
+		    p_pipe->write_event,
+		    INFINITE
+		);
 
-		if(!NT_SUCCESS(status)) {
-			(p_pipe->count)--;
-			return status;
-		}
-
-		status = KeWaitForSingleObject(
-		             &(p_pipe->buf_lock),
-		             Executive,
-		             KernelMode,
-		             FALSE,
-		             NULL
-		         );
-
-		if(!NT_SUCCESS(status)) {
-			KeSetEvent(&(p_pipe->write_event), 0, FALSE);
-			(p_pipe->count)--;
-			return status;
-		}
+		EnterCriticalSection(&(p_pipe->buf_lock));
 	}
 
 	//Test if the pipe is being destroyed
 	if(p_pipe->destroy_flag) {
-		KeSetEvent(&(p_pipe->write_event), 0, FALSE);
-		KeSetEvent(&(p_pipe->read_event), 0, FALSE);
-		KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
+		SetEvent(p_pipe->write_event);
+		SetEvent(p_pipe->read_event);
+		LeaveCriticalSection(&(p_pipe->buf_lock));
 		(p_pipe->count)--;
-		return STATUS_HANDLES_CLOSED;
+		return FALSE;
 	}
 
 	//Read data
@@ -183,39 +144,27 @@ NTSTATUS read_pipe(ppipe p_pipe, PVOID buf, SIZE_T buf_size, PSIZE_T p_length_re
 		}
 	}
 
-	KeSetEvent(&(p_pipe->read_event), 0, FALSE);
-	KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
+	SetEvent(p_pipe->read_event);
+	LeaveCriticalSection(&(p_pipe->buf_lock));
 	(p_pipe->count)--;
-	return STATUS_SUCCESS;
+	return TRUE;
 }
 
-NTSTATUS write_pipe(ppipe p_pipe, PVOID data, SIZE_T length_to_write)
+BOOLEAN write_pipe(ppipe p_pipe, PVOID data, SIZE_T length_to_write)
 {
-	NTSTATUS status;
 	PCHAR p_input;
 	SIZE_T length_written;
 
-	status = KeWaitForSingleObject(
-	             &(p_pipe->buf_lock),
-	             Executive,
-	             KernelMode,
-	             FALSE,
-	             NULL
-	         );
+	EnterCriticalSection(&(p_pipe->buf_lock));
 	(p_pipe->count)++;
-
-	if(!NT_SUCCESS(status)) {
-		(p_pipe->count)--;
-		return status;
-	}
 
 	//Test if the pipe is being destroyed
 	if(p_pipe->destroy_flag) {
-		KeSetEvent(&(p_pipe->write_event), 0, FALSE);
-		KeSetEvent(&(p_pipe->read_event), 0, FALSE);
-		KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
+		SetEvent(p_pipe->write_event);
+		SetEvent(p_pipe->read_event);
+		LeaveCriticalSection(&(p_pipe->buf_lock));
 		(p_pipe->count)--;
-		return STATUS_HANDLES_CLOSED;
+		return FALSE;
 	}
 
 	p_input = (PCHAR)data;
@@ -225,44 +174,25 @@ NTSTATUS write_pipe(ppipe p_pipe, PVOID data, SIZE_T length_to_write)
 		//If the pipe is full,wait for space.
 		while(is_pipe_full(p_pipe)
 		      && !p_pipe->destroy_flag) {
-			KeResetEvent(&(p_pipe->read_event));
-			KeSetEvent(&(p_pipe->write_event), 0, FALSE);
-			KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
-			status = KeWaitForSingleObject(
-			             &(p_pipe->read_event),
-			             Executive,
-			             KernelMode,
-			             FALSE,
-			             NULL
-			         );
+			ResetEvent(p_pipe->read_event);
+			SetEvent(p_pipe->write_event);
+			LeaveCriticalSection(&(p_pipe->buf_lock));
+			WaitForSingleObject(
+			    p_pipe->read_event,
+			    INFINITE
+			);
 
-			if(!NT_SUCCESS(status)) {
-				(p_pipe->count)--;
-				return status;
-			}
+			EnterCriticalSection(&(p_pipe->buf_lock));
 
-			status = KeWaitForSingleObject(
-			             &(p_pipe->buf_lock),
-			             Executive,
-			             KernelMode,
-			             FALSE,
-			             NULL
-			         );
-
-			if(!NT_SUCCESS(status)) {
-				KeSetEvent(&(p_pipe->read_event), 0, FALSE);
-				(p_pipe->count)--;
-				return status;
-			}
 		}
 
 		//Test if the pipe is being destroyed
 		if(p_pipe->destroy_flag) {
-			KeSetEvent(&(p_pipe->read_event), 0, FALSE);
-			KeSetEvent(&(p_pipe->write_event), 0, FALSE);
-			KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
+			SetEvent(p_pipe->read_event);
+			SetEvent(p_pipe->write_event);
+			LeaveCriticalSection(&(p_pipe->buf_lock));
 			(p_pipe->count)--;
-			return STATUS_HANDLES_CLOSED;
+			return FALSE;
 		}
 
 		//Write data
@@ -270,10 +200,10 @@ NTSTATUS write_pipe(ppipe p_pipe, PVOID data, SIZE_T length_to_write)
 		p_input = (PCHAR)data + length_written;
 	}
 
-	KeSetEvent(&(p_pipe->write_event), 0, FALSE);
-	KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
+	SetEvent(p_pipe->write_event);
+	LeaveCriticalSection(&(p_pipe->buf_lock));
 	(p_pipe->count)--;
-	return STATUS_SUCCESS;
+	return TRUE;
 }
 
 BOOLEAN is_pipe_empty(ppipe p_pipe)

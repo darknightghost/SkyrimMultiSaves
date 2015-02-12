@@ -20,15 +20,21 @@
 
 //Types
 typedef	unsigned __int32		hvdir, *phvdir;
-typedef	struct _calling_pkg_head {
-	UINT16		func_num;
+typedef	struct _call_pkg_head {
+	UINT16		call_number;
 	UCHAR		arg_num;
-} calling_pkg, *pcalling_pkg;
+	UINT32		buf_len;
+} call_pkg, *pcall_pkg;
 
 typedef	struct _arg_head {
 	UINT32	type;
 	UINT32	size;
 } arg_head, *parg_head;
+
+typedef	struct _ret_pkg_head {
+	UINT16		call_number;
+	PVOID		ret;
+} ret_pkg, *pret_pkg;
 
 //Functions
 /*

@@ -49,7 +49,7 @@ daemon_caller:
 				;edx=Number of arguments
 				xor		edx,edx
 				mov		dl,[esi]
-				inc		esi
+				add		esi,5
 				;r13=Number of arguments dealed
 				xor		ecx,ecx
 				;while(ecx!=edx)

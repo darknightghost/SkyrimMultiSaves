@@ -16,6 +16,7 @@
 */
 
 #include "gate.h"
+#include "../data_structure/pipe.h"
 
 static	CRITICAL_SECTION	call_kernel_lock;
 static	CRITICAL_SECTION	flag_lock;
@@ -23,6 +24,8 @@ static	bool				init_flag = false;
 static	bool				run_flag = false;
 static	ULONG				calling_count = 0;
 static	HANDLE				device_read_thread_hnd;
+static	PVOID				kernel_ret;
+static	HANDLE				kernel_ret_event;
 
 void*						user_mode_func_table[] = {
 	u_create_virtual_path,
@@ -41,6 +44,7 @@ void init_call_gate()
 
 	InitializeCriticalSection(&call_kernel_lock);
 	InitializeCriticalSection(&flag_lock);
+	kernel_ret_event = CreateEvent(NULL, TRUE, FALSE, NULL);
 	return;
 }
 
@@ -52,6 +56,7 @@ void destroy_call_gate()
 
 	DeleteCriticalSection(&call_kernel_lock);
 	DeleteCriticalSection(&flag_lock);
+	CloseHandle(kernel_ret_event);
 	return;
 }
 
@@ -118,8 +123,40 @@ void stop_call_gate()
 
 void*			driver_caller(void* buf);
 
-DWORD	WINAPI	device_read_func(LPVOID p_null)
+DWORD WINAPI device_read_func(LPVOID p_null)
 {
+	char read_buf[1024];
+	DWORD length_read;
+	DWORD len;
+	pcall_pkg p_call_head;
+	pret_pkg p_ret_head;
+	char* call_buf;
+
+
+	p_call_head = read_buf;
+	p_ret_head = read_buf;
+
+	while(run_flag) {
+		//Get call number
+		length_read = 0;
+
+		while(length_read < sizeof(UINT16)) {
+			read_device(read_buf, sizeof(UINT16), &len);
+
+			if(!run_flag) {
+				return 0;
+			}
+
+			length_read += len;
+		}
+
+		if(IS_KERNERL_MODE_CALL_NUMBER(p_call_head->call_number)) {
+			//It's a return value
+		} else {
+			//It's a call from kernel
+		}
+	}
+
 	return 0;
 }
 
