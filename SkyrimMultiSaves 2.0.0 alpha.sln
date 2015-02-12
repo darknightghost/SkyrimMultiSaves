@@ -6,6 +6,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documents", "documents", "{
 	ProjectSection(SolutionItems) = preProject
 		LICENCES.txt = LICENCES.txt
 		README.txt = README.txt
+		SFG_FILE_STRUCTURE.txt = SFG_FILE_STRUCTURE.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "others", "others", "{990078F9-70E6-44C9-ADC7-D7C8286F7B89}"

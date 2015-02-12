@@ -1,6 +1,6 @@
-//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ ���ɵİ����ļ���
-// �� sms_gui.rc ʹ��
+﻿//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ 生成的包含文件。
+// 供 sms_gui.rc 使用
 //
 #define IDD_DLG_IMPORT_MOD_SELECT       101
 #define IDR_MENU_MAIN                   103

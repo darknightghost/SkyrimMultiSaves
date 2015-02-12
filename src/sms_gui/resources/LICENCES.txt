@@ -1,4 +1,4 @@
-                             LICENSE
+﻿                             LICENSE
 
   WARNING:THIS VERSION IS NOT A STABLE VERSION!!!It may have a lot of
 bugs and destroy your game.It is not wise to use it if you are poor
