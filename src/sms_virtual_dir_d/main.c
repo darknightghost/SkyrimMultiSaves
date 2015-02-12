@@ -27,7 +27,7 @@ static	HANDLE		mutex_hnd;
 void	test();
 //</test>
 
-int main(int argc, char* argn[])
+int __cdecl main(int argc, char* argn[])
 {
 	BREAKPOINT;
 

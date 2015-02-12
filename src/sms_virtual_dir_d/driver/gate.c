@@ -117,7 +117,12 @@ void stop_call_gate()
 }
 
 void*			driver_caller(void* buf);
-DWORD	WINAPI	device_read_func(LPVOID p_null);
+
+DWORD	WINAPI	device_read_func(LPVOID p_null)
+{
+	return 0;
+}
+
 VOID			k_enable_filter();
 VOID			k_disable_filter();
 BOOLEAN			k_set_base_dir(PWCHAR path);
@@ -126,6 +131,13 @@ NTSTATUS		k_change_virtual_path(hvdir vdir_hnd, PWCHAR new_src, UINT32 flag);
 BOOLEAN			k_remove_virtual_path(hvdir vdir_hnd);
 VOID			k_clean_all_virtual_path();
 
-BOOLEAN			u_create_virtual_path(hvdir new_vdir_hnd, PWCHAR dest, UINT32 flag);
-BOOLEAN			u_change_virtual_path(hvdir vdir_hnd);
+BOOLEAN	 u_create_virtual_path(hvdir new_vdir_hnd, PWCHAR dest, UINT32 flag)
+{
+	return TRUE;
+}
+
+BOOLEAN u_change_virtual_path(hvdir vdir_hnd)
+{
+	return TRUE;
+}
 

@@ -1,5 +1,4 @@
-﻿
-Copyright 2015,暗夜幽灵 <darknightghost.cn@gmail.com>
+﻿Copyright 2015,暗夜幽灵 <darknightghost.cn@gmail.com>
 
   This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

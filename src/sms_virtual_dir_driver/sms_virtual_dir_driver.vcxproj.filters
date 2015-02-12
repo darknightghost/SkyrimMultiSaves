@@ -42,11 +42,6 @@
     </Inf>
   </ItemGroup>
   <ItemGroup>
-    <None Include="break_point.asm">
-      <Filter>Source Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="common.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -127,5 +122,10 @@
     <ClInclude Include="virtual_dir\volume_filter.h">
       <Filter>Header Files\virtual_dir</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="break_point.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
