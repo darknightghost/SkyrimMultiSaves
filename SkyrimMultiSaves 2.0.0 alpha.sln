@@ -4,8 +4,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "documents", "documents", "{A08415CD-D4A1-4A99-8860-3AAF71BD2D5A}"
 	ProjectSection(SolutionItems) = preProject
-		src\LICENCES.txt = src\LICENCES.txt
-		src\README.txt = src\README.txt
+		LICENCES.txt = LICENCES.txt
+		README.txt = README.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "others", "others", "{990078F9-70E6-44C9-ADC7-D7C8286F7B89}"
