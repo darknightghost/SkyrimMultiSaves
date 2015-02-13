@@ -158,7 +158,7 @@ void close_device()
 	CloseHandle(dev_hnd);
 }
 
-bool read_device(char* buf, DWORD len, LPDWORD p_length_read)
+bool read_device(void* buf, DWORD len, LPDWORD p_length_read)
 {
 	if(dev_hnd == NULL) {
 		return false;
@@ -173,7 +173,7 @@ bool read_device(char* buf, DWORD len, LPDWORD p_length_read)
 	return false;
 }
 
-bool write_device(char* buf, DWORD size, LPDWORD p_length_written)
+bool write_device(void* buf, DWORD size, LPDWORD p_length_written)
 {
 	if(dev_hnd == NULL) {
 		return false;

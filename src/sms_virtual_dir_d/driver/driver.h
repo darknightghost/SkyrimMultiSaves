@@ -24,8 +24,8 @@ bool		load_driver();
 void		unload_driver();
 bool		open_device();
 void		close_device();
-bool		read_device(char* buf, DWORD len, LPDWORD p_length_read);
-bool		write_device(char* buf, DWORD size, LPDWORD p_length_written);
+bool		read_device(void* buf, DWORD len, LPDWORD p_length_read);
+bool		write_device(void* buf, DWORD size, LPDWORD p_length_written);
 
 //Kernel functions
 

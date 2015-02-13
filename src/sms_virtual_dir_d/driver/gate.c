@@ -24,7 +24,7 @@ static	bool				init_flag = false;
 static	bool				run_flag = false;
 static	ULONG				calling_count = 0;
 static	HANDLE				device_read_thread_hnd;
-static	PVOID				kernel_ret;
+static	UINT64				kernel_ret;
 static	HANDLE				kernel_ret_event;
 
 void*						user_mode_func_table[] = {
@@ -32,7 +32,6 @@ void*						user_mode_func_table[] = {
 	u_change_virtual_path
 };
 
-static	void*				driver_caller(void* buf);
 void*						daemon_caller(void* buf);
 static	DWORD	WINAPI	device_read_func(LPVOID p_null);
 
@@ -121,27 +120,29 @@ void stop_call_gate()
 	return;
 }
 
-void*			driver_caller(void* buf);
-
 DWORD WINAPI device_read_func(LPVOID p_null)
 {
-	char read_buf[1024];
+	char read_buf[64];
 	DWORD length_read;
 	DWORD len;
 	pcall_pkg p_call_head;
 	pret_pkg p_ret_head;
 	char* call_buf;
+	parg_head p_arg_head;
+	char* p;
+	ret_pkg	call_ret;
+	DWORD length_wrritten;
+	UINT32 count;
 
-
-	p_call_head = read_buf;
-	p_ret_head = read_buf;
+	p_call_head = (pcall_pkg)read_buf;
+	p_ret_head = (pret_pkg)read_buf;
 
 	while(run_flag) {
 		//Get call number
 		length_read = 0;
 
 		while(length_read < sizeof(UINT16)) {
-			read_device(read_buf, sizeof(UINT16), &len);
+			read_device(read_buf + length_read, sizeof(UINT16), &len);
 
 			if(!run_flag) {
 				return 0;
@@ -152,8 +153,108 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 
 		if(IS_KERNERL_MODE_CALL_NUMBER(p_call_head->call_number)) {
 			//It's a return value
+			//Get return value
+			length_read = 0;
+
+			while(length_read < sizeof(UINT64)) {
+				read_device(read_buf + length_read, sizeof(UINT64) - length_read, &len);
+
+				if(!run_flag) {
+					return 0;
+				}
+
+				length_read += len;
+			}
+
+			kernel_ret = *(UINT64*)read_buf;
+			SetEvent(kernel_ret_event);
+			continue;
+
 		} else {
 			//It's a call from kernel
+			//Get call_pkg
+			length_read = 0;
+
+			while(length_read < sizeof(call_pkg) - sizeof(UINT16)) {
+				read_device(read_buf + sizeof(UINT16) + length_read, sizeof(call_pkg) - sizeof(UINT16) - length_read, &len);
+
+				if(!run_flag) {
+					return 0;
+				}
+
+				length_read += len;
+			}
+
+			call_buf = get_memory(p_call_head->buf_len);
+			call_ret.call_number = p_call_head->call_number;
+
+			if(call_buf == NULL) {
+				//Return failure
+				switch(p_call_head->return_type) {
+				case TYPE_BOOLEAN:
+					call_ret.ret = (LONGLONG)(BOOLEAN)FALSE;
+					break;
+
+				case TYPE_HVDIR:
+					call_ret.ret = (LONGLONG)(hvdir)NULL;
+					break;
+
+				case TYPE_UINT32:
+					call_ret.ret = (LONGLONG)(UINT32)0;
+					break;
+				}
+
+				EnterCriticalSection(&call_kernel_lock);
+				write_device(&call_ret, sizeof(call_ret), &length_wrritten);
+				LeaveCriticalSection(&call_kernel_lock);
+				continue;
+			}
+
+			//Copy call head
+			memcpy(call_buf, p_call_head, sizeof(pcall_pkg));
+			p = call_buf + sizeof(pcall_pkg);
+
+			//Get args
+			for(count = 0; count < p_call_head->arg_num; count++) {
+				p_arg_head = p;
+				//Get arg head
+				length_read = 0;
+
+				while(length_read < sizeof(parg_head)) {
+					read_device(p, sizeof(parg_head) - length_read, &len);
+
+					if(!run_flag) {
+						free_memory(call_buf);
+						return 0;
+					}
+
+					length_read += len;
+				}
+
+				p += length_read;
+				//Get arg value
+				length_read = 0;
+
+				while(length_read < p_arg_head->size) {
+					read_device(p, p_arg_head->size - length_read, &len);
+
+					if(!run_flag) {
+						free_memory(call_buf);
+						return 0;
+					}
+
+					length_read += len;
+				}
+
+				p += length_read;
+			}
+
+			//Call function
+			call_ret.ret = daemon_caller(call_buf);
+			EnterCriticalSection(&call_kernel_lock);
+			write_device(&call_ret, sizeof(call_ret), &length_wrritten);
+			LeaveCriticalSection(&call_kernel_lock);
+			free_memory(call_buf);
 		}
 	}
 

@@ -18,10 +18,10 @@
 public			daemon_caller
 extrn			user_mode_func_table:near
 
-ARG_TYPE_BOOLEAN		equ	0001h
-ARG_TYPE_HVDIR			equ	0002h
-ARG_TYPE_UINT32			equ	0003h
-ARG_TYPE_WCHAR_STRING	equ	0004h
+TYPE_BOOLEAN		equ	0001h
+TYPE_HVDIR			equ	0002h
+TYPE_UINT32			equ	0003h
+TYPE_WCHAR_STRING	equ	0004h
 
 
 ;void*			daemon_caller(void* buf);
@@ -47,7 +47,7 @@ daemon_caller:
 				;r12=Number of arguments
 				xor			r12,r12
 				mov			r12b,[rsi]
-				add			rsi,5
+				add			rsi,9
 				;r13=Number of arguments dealed
 				xor			r13,r13
 				push		rbp
@@ -68,9 +68,9 @@ daemon_caller:
 					jmp		SWITCH_0_DEFAULT
 					;case	0:
 					SWITCH_0_0:
-						;if(*rsi==ARG_TYPE_WCHAR_STRING)
+						;if(*rsi==TYPE_WCHAR_STRING)
 						mov		ebx,[rsi]
-						cmp		ebx,ARG_TYPE_WCHAR_STRING
+						cmp		ebx,TYPE_WCHAR_STRING
 						jne		ELSE_0
 						IF_0:
 							add		rsi,4
@@ -128,9 +128,9 @@ daemon_caller:
 						jmp		SWITCH_0_END
 					;case	1:
 					SWITCH_0_1:
-					;if(*rsi==ARG_TYPE_WCHAR_STRING)
+					;if(*rsi==TYPE_WCHAR_STRING)
 						mov		ebx,[rsi]
-						cmp		ebx,ARG_TYPE_WCHAR_STRING
+						cmp		ebx,TYPE_WCHAR_STRING
 						jne		ELSE_1
 						IF_1:
 							add		rsi,4
@@ -187,9 +187,9 @@ daemon_caller:
 						sub		rsp,8
 						jmp		SWITCH_0_END
 					SWITCH_0_2:
-						;if(*rsi==ARG_TYPE_WCHAR_STRING)
+						;if(*rsi==TYPE_WCHAR_STRING)
 						mov		ebx,[rsi]
-						cmp		ebx,ARG_TYPE_WCHAR_STRING
+						cmp		ebx,TYPE_WCHAR_STRING
 						jne		ELSE_2
 						IF_2:
 							add		rsi,4
@@ -246,9 +246,9 @@ daemon_caller:
 						sub		rsp,8
 						jmp		SWITCH_0_END
 					SWITCH_0_3:
-						;if(*rsi==ARG_TYPE_WCHAR_STRING)
+						;if(*rsi==TYPE_WCHAR_STRING)
 						mov		ebx,[rsi]
-						cmp		ebx,ARG_TYPE_WCHAR_STRING
+						cmp		ebx,TYPE_WCHAR_STRING
 						jne		ELSE_3
 						IF_3:
 							add		rsi,4

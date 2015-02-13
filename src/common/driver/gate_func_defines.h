@@ -24,6 +24,7 @@ typedef	struct _call_pkg_head {
 	UINT16		call_number;
 	UCHAR		arg_num;
 	UINT32		buf_len;
+	UINT32		return_type;
 } call_pkg, *pcall_pkg;
 
 typedef	struct _arg_head {
@@ -33,7 +34,7 @@ typedef	struct _arg_head {
 
 typedef	struct _ret_pkg_head {
 	UINT16		call_number;
-	PVOID		ret;
+	UINT64		ret;
 } ret_pkg, *pret_pkg;
 
 //Functions
@@ -71,10 +72,10 @@ BOOLEAN			u_change_virtual_path(hvdir vdir_hnd);
 #define	FLAG_CHANGESRC			0x00000008
 #define	FLAG_CHANGEFLAGS		0x00000010
 
-#define	ARG_TYPE_BOOLEAN		0x0001
-#define	ARG_TYPE_HVDIR			0x0002
-#define	ARG_TYPE_UINT32			0x0003
-#define	ARG_TYPE_WCHAR_STRING	0x0004
+#define	TYPE_BOOLEAN		0x0001
+#define	TYPE_HVDIR			0x0002
+#define	TYPE_UINT32			0x0003
+#define	TYPE_WCHAR_STRING	0x0004
 
 //Marcos
 #define	IS_KERNERL_MODE_CALL_NUMBER(call_num)	((call_num) < 0x8000)

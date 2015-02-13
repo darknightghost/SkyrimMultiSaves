@@ -23,10 +23,10 @@
 public			daemon_caller
 extrn			user_mode_func_table:near
 
-ARG_TYPE_BOOLEAN		equ	0001h
-ARG_TYPE_HVDIR			equ	0002h
-ARG_TYPE_UINT32			equ	0003h
-ARG_TYPE_WCHAR_STRING	equ	0004h
+TYPE_BOOLEAN		equ	0001h
+TYPE_HVDIR			equ	0002h
+TYPE_UINT32			equ	0003h
+TYPE_WCHAR_STRING	equ	0004h
 
 ;void*			daemon_caller(void* buf);
 daemon_caller:
@@ -49,17 +49,17 @@ daemon_caller:
 				;edx=Number of arguments
 				xor		edx,edx
 				mov		dl,[esi]
-				add		esi,5
+				add		esi,9
 				;r13=Number of arguments dealed
 				xor		ecx,ecx
 				;while(ecx!=edx)
 				WHILE_0:
 				cmp		ecx,edx
 				je		WHILE_END_0
-					;if(*esi==ARG_TYPE_WCHAR_STRING)
+					;if(*esi==TYPE_WCHAR_STRING)
 					IF_0_0:
 					mov		ebx,[esi]
-					cmp		ebx,ARG_TYPE_WCHAR_STRING
+					cmp		ebx,TYPE_WCHAR_STRING
 					jne		IF_0_ELSE
 						add		esi,4
 						mov		ebx,[esi]
