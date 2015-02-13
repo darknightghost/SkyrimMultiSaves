@@ -32,9 +32,17 @@ typedef	struct _arg_head {
 	UINT32	size;
 } arg_head, *parg_head;
 
+typedef	union _ret_ptr {
+	PVOID		value;
+	UINT64		ret_64;
+	UINT32		ret_32;
+	UINT16		ret_16;
+	UINT8		ret_8;
+} ret_ptr, *pret_ptr;
+
 typedef	struct _ret_pkg_head {
 	UINT16		call_number;
-	UINT64		ret;
+	ret_ptr		ret;
 } ret_pkg, *pret_pkg;
 
 //Functions
@@ -72,6 +80,7 @@ BOOLEAN			u_change_virtual_path(hvdir vdir_hnd);
 #define	FLAG_CHANGESRC			0x00000008
 #define	FLAG_CHANGEFLAGS		0x00000010
 
+#define	TYPE_VOID			0x0000
 #define	TYPE_BOOLEAN		0x0001
 #define	TYPE_HVDIR			0x0002
 #define	TYPE_UINT32			0x0003
