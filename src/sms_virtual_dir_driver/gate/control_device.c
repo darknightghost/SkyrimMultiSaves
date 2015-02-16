@@ -54,6 +54,7 @@ NTSTATUS init_control_device(PDRIVER_OBJECT p_driver_object)
 	UNICODE_STRING symbol_link =
 	    RTL_CONSTANT_STRING(SYMBOLLINK_NAME);
 
+	PASSIVE_LEVEL_ASSERT;
 	//Initialize pipes
 	status = initialize_pipe(&read_buf, 1024);
 
@@ -115,6 +116,7 @@ VOID destroy_control_device()
 	UNICODE_STRING str_symbolic_link
 	    = RTL_CONSTANT_STRING(SYMBOLLINK_NAME);
 
+	PASSIVE_LEVEL_ASSERT;
 	//Destroy buffers
 	destroy_pipe(&read_buf);
 	destroy_pipe(&write_buf);
@@ -161,6 +163,8 @@ NTSTATUS dispatch_func(PDEVICE_OBJECT p_device, PIRP p_irp)
 
 NTSTATUS dispatch_func_create(PDEVICE_OBJECT p_device, PIRP p_irp, PIO_STACK_LOCATION p_irpsp)
 {
+	PASSIVE_LEVEL_ASSERT;
+
 	//Test if the device has been opened
 	if(!NT_SUCCESS(
 	       KeWaitForSingleObject(
@@ -205,6 +209,7 @@ NTSTATUS dispatch_func_close(PDEVICE_OBJECT p_device, PIRP p_irp, PIO_STACK_LOCA
 	NTSTATUS status;
 	UNICODE_STRING full_service_path;
 
+	PASSIVE_LEVEL_ASSERT;
 	p_irp->IoStatus.Information = 0;
 	p_irp->IoStatus.Status = STATUS_SUCCESS;
 	IoCompleteRequest(p_irp, IO_NO_INCREMENT);
@@ -234,6 +239,7 @@ NTSTATUS dispatch_func_read(PDEVICE_OBJECT p_device, PIRP p_irp, PIO_STACK_LOCAT
 	NTSTATUS status;
 	SIZE_T length_read;
 
+	PASSIVE_LEVEL_ASSERT;
 	//Read data
 	status = read_pipe(
 	             &read_buf,
@@ -260,6 +266,7 @@ NTSTATUS dispatch_func_write(PDEVICE_OBJECT p_device, PIRP p_irp, PIO_STACK_LOCA
 {
 	NTSTATUS status;
 
+	PASSIVE_LEVEL_ASSERT;
 	//Write data
 	status = write_pipe(
 	             &write_buf,

@@ -18,9 +18,12 @@
 #ifndef GATE_H_INCLUDE
 #define	GATE_H_INCLUDE
 
+#define		UMDF_USING_NTSTATUS
+
 #include "../common.h"
 #include "../../common/driver/gate_func_defines.h"
 #include "driver.h"
+#include <ntstatus.h>
 
 void		init_call_gate();
 void		destroy_call_gate();

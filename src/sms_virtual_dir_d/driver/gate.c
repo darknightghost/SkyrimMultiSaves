@@ -129,7 +129,6 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 	DWORD length_read;
 	DWORD len;
 	pcall_pkg p_call_head;
-	pret_pkg p_ret_head;
 	char* call_buf;
 	parg_head p_arg_head;
 	char* p;
@@ -138,7 +137,6 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 	UINT32 count;
 
 	p_call_head = (pcall_pkg)read_buf;
-	p_ret_head = (pret_pkg)read_buf;
 
 	while(run_flag) {
 		//Get call number
@@ -239,9 +237,9 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 					}
 
 					length_read += len;
+					p += len;
 				}
 
-				p += length_read;
 				//Get arg value
 				length_read = 0;
 
@@ -254,9 +252,9 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 					}
 
 					length_read += len;
+					p += len;
 				}
 
-				p += length_read;
 			}
 
 			MEM_CHK(call_buf);
@@ -278,6 +276,21 @@ VOID k_enable_filter()
 	call_pkg call_head;
 	DWORD length_wrritten;
 
+	if(!run_flag) {
+		return;
+	}
+
+	EnterCriticalSection(&flag_lock);
+
+	if(!run_flag) {
+		LeaveCriticalSection(&flag_lock);
+		return;
+	}
+
+	calling_count++;
+	LeaveCriticalSection(&flag_lock);
+
+	LeaveCriticalSection(&flag_lock);
 	call_head.call_number = K_ENABLE_FILTER;
 	call_head.return_type = TYPE_VOID;
 	call_head.arg_num = 0;
@@ -293,6 +306,7 @@ VOID k_enable_filter()
 	ResetEvent(kernel_ret_event);
 	WaitForSingleObject(kernel_ret_event, INFINITE);
 	LeaveCriticalSection(&call_kernel_lock);
+	calling_count--;
 	return;
 }
 
@@ -300,6 +314,20 @@ VOID k_disable_filter()
 {
 	call_pkg call_head;
 	DWORD length_wrritten;
+
+	if(!run_flag) {
+		return;
+	}
+
+	EnterCriticalSection(&flag_lock);
+
+	if(!run_flag) {
+		LeaveCriticalSection(&flag_lock);
+		return;
+	}
+
+	calling_count++;
+	LeaveCriticalSection(&flag_lock);
 
 	call_head.call_number = K_DISABLE_FILTER;
 	call_head.return_type = TYPE_VOID;
@@ -316,6 +344,7 @@ VOID k_disable_filter()
 	ResetEvent(kernel_ret_event);
 	WaitForSingleObject(kernel_ret_event, INFINITE);
 	LeaveCriticalSection(&call_kernel_lock);
+	calling_count--;
 	return;
 }
 
@@ -329,6 +358,20 @@ BOOLEAN k_set_base_dir(PWCHAR path)
 	DWORD length_wrritten;
 	BOOLEAN ret;
 
+	if(!run_flag) {
+		return FALSE;
+	}
+
+	EnterCriticalSection(&flag_lock);
+
+	if(!run_flag) {
+		LeaveCriticalSection(&flag_lock);
+		return FALSE;
+	}
+
+	calling_count++;
+	LeaveCriticalSection(&flag_lock);
+
 	//Compute the size of new buf.
 	buf_len = (UINT32)(
 	              sizeof(call_pkg) + sizeof(arg_head) + wcslen(path) + sizeof(WCHAR)
@@ -336,6 +379,7 @@ BOOLEAN k_set_base_dir(PWCHAR path)
 	buf = get_memory(buf_len);
 
 	if(buf == NULL) {
+		calling_count--;
 		return FALSE;
 	}
 
@@ -365,6 +409,7 @@ BOOLEAN k_set_base_dir(PWCHAR path)
 	WaitForSingleObject(kernel_ret_event, INFINITE);
 	ret = kernel_ret.ret_8;
 	LeaveCriticalSection(&call_kernel_lock);
+	calling_count--;
 	return ret;
 }
 
@@ -378,6 +423,20 @@ hvdir k_add_virtual_path(PWCHAR src, PWCHAR dest, UINT32 flag)
 	DWORD length_wrritten;
 	hvdir ret;
 
+	if(!run_flag) {
+		return (hvdir)NULL;
+	}
+
+	EnterCriticalSection(&flag_lock);
+
+	if(!run_flag) {
+		LeaveCriticalSection(&flag_lock);
+		return (hvdir)NULL;
+	}
+
+	calling_count++;
+	LeaveCriticalSection(&flag_lock);
+
 	//Compute the size of new buf.
 	buf_len = (UINT32)(
 	              sizeof(call_pkg) + sizeof(arg_head) * 3 + wcslen(src)
@@ -386,6 +445,7 @@ hvdir k_add_virtual_path(PWCHAR src, PWCHAR dest, UINT32 flag)
 	buf = get_memory(buf_len);
 
 	if(buf == NULL) {
+		calling_count--;
 		return (hvdir)NULL;
 	}
 
@@ -431,20 +491,230 @@ hvdir k_add_virtual_path(PWCHAR src, PWCHAR dest, UINT32 flag)
 	WaitForSingleObject(kernel_ret_event, INFINITE);
 	ret = kernel_ret.ret_32;
 	LeaveCriticalSection(&call_kernel_lock);
+	calling_count--;
 	return ret;
 }
 
-NTSTATUS		k_change_virtual_path(hvdir vdir_hnd, PWCHAR new_src, UINT32 flag);
-BOOLEAN			k_remove_virtual_path(hvdir vdir_hnd);
-VOID			k_clean_all_virtual_path();
+NTSTATUS k_change_virtual_path(hvdir vdir_hnd, PWCHAR new_src, UINT32 flag)
+{
+	pcall_pkg p_call_head;
+	parg_head p_arg;
+	char* p_arg_value;
+	char* buf;
+	UINT32 buf_len;
+	DWORD length_wrritten;
+	hvdir ret;
+
+	if(!run_flag) {
+		return STATUS_UNSUCCESSFUL;
+	}
+
+	EnterCriticalSection(&flag_lock);
+
+	if(!run_flag) {
+		LeaveCriticalSection(&flag_lock);
+		return STATUS_UNSUCCESSFUL;
+	}
+
+	calling_count++;
+	LeaveCriticalSection(&flag_lock);
+
+	//Compute the size of new buf.
+	buf_len = (UINT32)(
+	              sizeof(call_pkg) + sizeof(arg_head) * 3 + sizeof(hvdir)
+	              + wcslen(new_src) + sizeof(WCHAR) + sizeof(UINT32)
+	          );
+	buf = get_memory(buf_len);
+
+	if(buf == NULL) {
+		calling_count--;
+		return STATUS_INSUFFICIENT_RESOURCES;
+	}
+
+	//Fill call head
+	p_call_head = (pcall_pkg)buf;
+	p_call_head->call_number = K_CHANGE_VIRTUAL_PATH;
+	p_call_head->buf_len = buf_len;
+	p_call_head->return_type = TYPE_NTSTATUS;
+	p_call_head->arg_num = 3;
+
+	//First arg
+	p_arg = (parg_head)(p_call_head + 1);
+	p_arg->size = (UINT32)sizeof(hvdir);
+	p_arg->type = TYPE_HVDIR;
+
+	p_arg_value = (char*)(p_arg + 1);
+	*(phvdir)p_arg_value = vdir_hnd;
+
+	//Second arg
+	p_arg = (parg_head)(p_arg_value + wcslen(new_src) + sizeof(WCHAR));
+	p_arg->size = (UINT32)(wcslen(new_src) + sizeof(WCHAR));
+	p_arg->type = TYPE_WCHAR_STRING;
+
+	p_arg_value = (char*)(p_arg + 1);
+	wcscpy((PWCHAR)p_arg_value, new_src);
+
+	//Third arg
+	p_arg = (parg_head)(p_arg_value + wcslen(new_src) + sizeof(WCHAR));
+	p_arg->size = sizeof(UINT32);
+	p_arg->type = TYPE_UINT32;
+
+	p_arg_value = (char*)(p_arg + 1);
+	*(UINT32*)p_arg_value = flag;
+
+	//Call function
+	EnterCriticalSection(&call_kernel_lock);
+	EnterCriticalSection(&kernel_write_lock);
+	write_device(buf, buf_len, &length_wrritten);
+	LeaveCriticalSection(&kernel_write_lock);
+
+	//Wait for return
+	ResetEvent(kernel_ret_event);
+	WaitForSingleObject(kernel_ret_event, INFINITE);
+	ret = kernel_ret.ret_32;
+	LeaveCriticalSection(&call_kernel_lock);
+	calling_count--;
+	return ret;
+}
+
+BOOLEAN k_remove_virtual_path(hvdir vdir_hnd)
+{
+	pcall_pkg p_call_head;
+	parg_head p_arg;
+	char* p_arg_value;
+	char* buf;
+	UINT32 buf_len;
+	DWORD length_wrritten;
+	hvdir ret;
+
+	if(!run_flag) {
+		return FALSE;
+	}
+
+	EnterCriticalSection(&flag_lock);
+
+	if(!run_flag) {
+		LeaveCriticalSection(&flag_lock);
+		return FALSE;
+	}
+
+	calling_count++;
+	LeaveCriticalSection(&flag_lock);
+	//Compute the size of new buf.
+	buf_len = (UINT32)(
+	              sizeof(call_pkg) + sizeof(arg_head) + sizeof(hvdir)
+	          );
+	buf = get_memory(buf_len);
+
+	if(buf == NULL) {
+		calling_count--;
+		return FALSE;
+	}
+
+	//Fill call head
+	p_call_head = (pcall_pkg)buf;
+	p_call_head->call_number = K_CHANGE_VIRTUAL_PATH;
+	p_call_head->buf_len = buf_len;
+	p_call_head->return_type = TYPE_BOOLEAN;
+	p_call_head->arg_num = 1;
+
+	//First arg
+	p_arg = (parg_head)(p_call_head + 1);
+	p_arg->size = (UINT32)sizeof(hvdir);
+	p_arg->type = TYPE_HVDIR;
+
+	p_arg_value = (char*)(p_arg + 1);
+	*(phvdir)p_arg_value = vdir_hnd;
+
+	//Call function
+	EnterCriticalSection(&call_kernel_lock);
+	EnterCriticalSection(&kernel_write_lock);
+	write_device(buf, buf_len, &length_wrritten);
+	LeaveCriticalSection(&kernel_write_lock);
+
+	//Wait for return
+	ResetEvent(kernel_ret_event);
+	WaitForSingleObject(kernel_ret_event, INFINITE);
+	ret = kernel_ret.ret_8;
+	LeaveCriticalSection(&call_kernel_lock);
+	calling_count--;
+	return ret;
+}
+
+VOID k_clean_all_virtual_path()
+{
+	call_pkg call_head;
+	DWORD length_wrritten;
+
+	if(!run_flag) {
+		return;
+	}
+
+	EnterCriticalSection(&flag_lock);
+
+	if(!run_flag) {
+		LeaveCriticalSection(&flag_lock);
+		return;
+	}
+
+	calling_count++;
+	LeaveCriticalSection(&flag_lock);
+	call_head.call_number = K_CLEAN_ALL_VIRTUAL_PATH;
+	call_head.return_type = TYPE_VOID;
+	call_head.arg_num = 0;
+	call_head.buf_len = sizeof(call_pkg);
+
+	//Call function
+	EnterCriticalSection(&call_kernel_lock);
+	EnterCriticalSection(&kernel_write_lock);
+	write_device(&call_head, sizeof(call_pkg), &length_wrritten);
+	LeaveCriticalSection(&kernel_write_lock);
+
+	//Wait for return
+	ResetEvent(kernel_ret_event);
+	WaitForSingleObject(kernel_ret_event, INFINITE);
+	LeaveCriticalSection(&call_kernel_lock);
+	calling_count--;
+	return;
+}
 
 BOOLEAN u_create_virtual_path(hvdir new_vdir_hnd, PWCHAR dest, UINT32 flag)
 {
+	if(!run_flag) {
+		return FALSE;
+	}
+
+	EnterCriticalSection(&flag_lock);
+
+	if(!run_flag) {
+		LeaveCriticalSection(&flag_lock);
+		return FALSE;
+	}
+
+	calling_count++;
+	LeaveCriticalSection(&flag_lock);
+	//
+	calling_count--;
 	return TRUE;
 }
 
 BOOLEAN u_change_virtual_path(hvdir vdir_hnd)
 {
+	if(!run_flag) {
+		return FALSE;
+	}
+
+	EnterCriticalSection(&flag_lock);
+
+	if(!run_flag) {
+		LeaveCriticalSection(&flag_lock);
+		return FALSE;
+	}
+
+	calling_count++;
+	LeaveCriticalSection(&flag_lock);
+	//
+	calling_count--;
 	return TRUE;
 }
 

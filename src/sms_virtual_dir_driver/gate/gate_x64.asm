@@ -15,8 +15,8 @@
 ;   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;---------------------------------------------------------------------------------
 				.code
-public			daemon_caller
-extrn			user_mode_func_table:near
+public			driver_caller
+extrn			kernel_mode_func_table:near
 
 TYPE_BOOLEAN		equ	0001h
 TYPE_HVDIR			equ	0002h
@@ -24,8 +24,8 @@ TYPE_UINT32			equ	0003h
 TYPE_WCHAR_STRING	equ	0004h
 
 
-;void*			daemon_caller(void* buf);
-daemon_caller:
+;void*			driver_caller(void* buf);
+driver_caller:
 				push		rbp
 				mov			rbp,rsp
 				push		rbx
@@ -37,10 +37,9 @@ daemon_caller:
 				;rsi=buf
 				mov			rsi,rcx
 				;rax=Address of function
-				mov			rbx,offset user_mode_func_table
+				mov			rbx,offset kernel_mode_func_table
 				xor			rax,rax
 				mov			ax,[rsi]
-				sub			ax,8000h
 				add			rbx,rax
 				mov			rax,[rbx]
 				add			rsi,2

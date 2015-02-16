@@ -139,5 +139,11 @@
     <MASM Include="break_point.asm">
       <Filter>Source Files</Filter>
     </MASM>
+    <MASM Include="gate\gate_x64.asm">
+      <Filter>Source Files\gate</Filter>
+    </MASM>
+    <MASM Include="gate\gate_x86.asm">
+      <Filter>Source Files\gate</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

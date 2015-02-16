@@ -39,13 +39,14 @@
 	//Make sure the operating system will not show blue screen with death without kernel debuggers
 	#define	BREAKPOINT				if(!KdRefreshDebuggerNotPresent()) RAW_BREAKPOINT
 	#define	BREAKIFNOT(condition)	if(!(condition)) if(!KdRefreshDebuggerNotPresent())	RAW_BREAKPOINT
-
+	#define	PASSIVE_LEVEL_ASSERT	ASSERT(KeGetCurrentIrql() <= PASSIVE_LEVEL)
 #endif //_DEBUG
 #ifndef _DEBUG
 
 	#define	BREAKPOINT
 	#define	BREAKIFNOT(condition)
 	#define	RAW_BREAKPOINT
+	#define	PASSIVE_LEVEL_ASSERT
 
 #endif // !_DEBUG
 

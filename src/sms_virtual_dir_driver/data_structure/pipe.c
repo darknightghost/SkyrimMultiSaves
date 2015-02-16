@@ -23,6 +23,8 @@ static	VOID			write_buf(ppipe p_pipe, PCHAR p_input, PSIZE_T p_length_written, S
 
 NTSTATUS initialize_pipe(ppipe p_pipe, SIZE_T buf_size)
 {
+	PASSIVE_LEVEL_ASSERT;
+
 	//Allocate memory
 	if((p_pipe->buf
 	    = (PCHAR)get_memory(buf_size, *(PULONG)"sms", NonPagedPool))
@@ -50,6 +52,7 @@ NTSTATUS initialize_pipe(ppipe p_pipe, SIZE_T buf_size)
 
 VOID destroy_pipe(ppipe p_pipe)
 {
+	PASSIVE_LEVEL_ASSERT;
 	KeWaitForSingleObject(
 	    &(p_pipe->buf_lock),
 	    Executive,
@@ -77,7 +80,7 @@ NTSTATUS read_pipe(ppipe p_pipe, PVOID buf, SIZE_T buf_size, PSIZE_T p_length_re
 	PCHAR p_pipe_buf_end;
 	PCHAR p_output;
 
-
+	PASSIVE_LEVEL_ASSERT;
 	status = KeWaitForSingleObject(
 	             &(p_pipe->buf_lock),
 	             Executive,
@@ -195,6 +198,7 @@ NTSTATUS write_pipe(ppipe p_pipe, PVOID data, SIZE_T length_to_write)
 	PCHAR p_input;
 	SIZE_T length_written;
 
+	PASSIVE_LEVEL_ASSERT;
 	status = KeWaitForSingleObject(
 	             &(p_pipe->buf_lock),
 	             Executive,
@@ -301,6 +305,7 @@ VOID write_buf(ppipe p_pipe, PCHAR p_input, PSIZE_T p_length_written, SIZE_T len
 {
 	PCHAR p_pipe_buf_end;
 
+	PASSIVE_LEVEL_ASSERT;
 	p_pipe_buf_end = p_pipe->buf + p_pipe->buf_size - 1;
 
 	//Test if the buf is empty
