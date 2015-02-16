@@ -36,13 +36,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef _DEBUG
 
 bool	is_debugger_present();
+void	print_err(wchar_t* str);
 
-#define	BREAKPOINT		if(is_debugger_present())	RAW_BREAKPOINT;
-#define	PRINTF(fmt,...)	printf(fmt,##__VA_ARGS__)
-#define	PRINT_ERR(str)		{\
-		MessageBox(NULL, (str), L"Error", MB_OK | MB_ICONERROR);\
-		RAW_BREAKPOINT;\
-	}
+#define	BREAKPOINT			if(is_debugger_present())	RAW_BREAKPOINT;
+#define	PRINTF(fmt,...)		printf(fmt,##__VA_ARGS__)
+#define	PRINT_ERR(str)		print_err((str))
+
 #define	PAUSE	{\
 		printf("Press any key to continue...\n");\
 		fflush(stdin);\

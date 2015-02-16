@@ -20,7 +20,7 @@
 
 ;---------------------------------------------------------------------------------
 				.code
-public			driver_caller
+public			driver_caller@4
 extrn			kernel_mode_func_table:near
 
 TYPE_BOOLEAN		equ	0001h
@@ -29,7 +29,7 @@ TYPE_UINT32			equ	0003h
 TYPE_WCHAR_STRING	equ	0004h
 
 ;void*			driver_caller(void* buf);
-driver_caller:
+driver_caller@4:
 				push	ebp
 				mov		ebp,esp
 				sub		esp,4

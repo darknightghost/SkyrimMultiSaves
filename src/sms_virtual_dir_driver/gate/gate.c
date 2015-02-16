@@ -327,6 +327,7 @@ BOOLEAN k_set_base_dir(PWCHAR path)
 	KeReleaseSpinLock(&flag_lock, irql);
 	KdPrint(("sms:k_set_base_dir called.path=\"%ws\"\n", path));
 	thread_num--;
+	UNREFERENCED_PARAMETER(path);
 	return TRUE;
 }
 
@@ -346,6 +347,9 @@ hvdir k_add_virtual_path(PWCHAR src, PWCHAR dest, UINT32 flag)
 	KeReleaseSpinLock(&flag_lock, irql);
 	KdPrint(("sms:k_add_virtual_path called.src=\"%ws\",dest=\"%ws\",flag=0x%.8X\n", src, dest, flag));
 	thread_num--;
+	UNREFERENCED_PARAMETER(src);
+	UNREFERENCED_PARAMETER(dest);
+	UNREFERENCED_PARAMETER(flag);
 	return 0;
 }
 
@@ -365,6 +369,9 @@ NTSTATUS k_change_virtual_path(hvdir vdir_hnd, PWCHAR new_src, UINT32 flag)
 	KeReleaseSpinLock(&flag_lock, irql);
 	KdPrint(("sms:k_change_virtual_path called.vdir_hnd=0x%.8X,new_src=\"%ws\",flag=0x%.8X\n", vdir_hnd, new_src, flag));
 	thread_num--;
+	UNREFERENCED_PARAMETER(vdir_hnd);
+	UNREFERENCED_PARAMETER(new_src);
+	UNREFERENCED_PARAMETER(flag);
 	return STATUS_SUCCESS;
 }
 
@@ -384,6 +391,7 @@ BOOLEAN k_remove_virtual_path(hvdir vdir_hnd)
 	KeReleaseSpinLock(&flag_lock, irql);
 	KdPrint(("sms:k_remove_virtual_path called.vdir_hnd=0x%.8X\n", vdir_hnd));
 	thread_num--;
+	UNREFERENCED_PARAMETER(vdir_hnd);
 	return TRUE;
 }
 

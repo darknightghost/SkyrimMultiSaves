@@ -20,7 +20,7 @@
 
 ;---------------------------------------------------------------------------------
 				.code
-public			daemon_caller
+public			daemon_caller@4
 extrn			user_mode_func_table:near
 
 TYPE_BOOLEAN		equ	0001h
@@ -29,7 +29,7 @@ TYPE_UINT32			equ	0003h
 TYPE_WCHAR_STRING	equ	0004h
 
 ;void*			daemon_caller(void* buf);
-daemon_caller:
+daemon_caller@4:
 				push	ebp
 				mov		ebp,esp
 				sub		esp,4

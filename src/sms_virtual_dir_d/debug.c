@@ -35,4 +35,12 @@ bool is_debugger_present()
 
 	return false;
 }
+
+void print_err(wchar_t* str)
+{
+	MessageBox(NULL, str, L"Error", MB_OK | MB_ICONERROR);
+	RAW_BREAKPOINT;
+	return;
+}
+
 #endif // _DEBUG

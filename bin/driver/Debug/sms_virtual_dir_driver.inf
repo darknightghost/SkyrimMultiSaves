@@ -7,7 +7,7 @@ Signature="$WINDOWS NT$"
 Class=
 ClassGuid=
 Provider=
-DriverVer=02/17/2015,1.49.30.309
+DriverVer=02/17/2015,2.25.0.726
 CatalogFile=
 
 [DestinationDirs]
@@ -21,9 +21,9 @@ DefaultDestDir = 12
 
 
 [Manufacturer]
-%ManufacturerName%=Standard,NTamd64
+%ManufacturerName%=Standard,NTx86
 
-[Standard.NTamd64]
+[Standard.NTx86]
 
 
 [Strings]
