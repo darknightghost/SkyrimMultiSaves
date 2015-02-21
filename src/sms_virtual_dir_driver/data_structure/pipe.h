@@ -28,6 +28,7 @@ typedef	struct _pipe {
 	UINT32			count;					//The number of thread which are reading and writing the pipe
 	BOOLEAN			destroy_flag;			//True if being destroyed
 	BOOLEAN			empty_flag;				//True if the buffer is empty
+	BOOLEAN			block_flag;				//Block status
 	KMUTEX			buf_lock;				//Must be acquired before operation the buf
 	KEVENT			read_event;				//Be set when the pipe is read
 	KEVENT			write_event;			//Be set when the pipe is written
@@ -36,8 +37,9 @@ typedef	struct _pipe {
 
 NTSTATUS	initialize_pipe(ppipe p_pipe, SIZE_T buf_size);
 VOID		destroy_pipe(ppipe p_pipe);
+VOID		set_pipe_block_status(ppipe p_pipe, BOOLEAN block_status);
 NTSTATUS	read_pipe(ppipe p_pipe, PVOID buf, SIZE_T buf_size, PSIZE_T p_length_read);
-NTSTATUS	write_pipe(ppipe p_pipe, PVOID data, SIZE_T length_to_write);
+NTSTATUS	write_pipe(ppipe p_pipe, PVOID data, SIZE_T length_to_write, PSIZE_T p_length_written);
 
 
 #endif // !PIPE_H_INCLUDE

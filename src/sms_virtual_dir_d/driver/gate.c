@@ -27,6 +27,9 @@ static	ULONG				calling_count = 0;
 static	HANDLE				device_read_thread_hnd;
 static	ret_ptr				kernel_ret;
 static	HANDLE				kernel_ret_event;
+static	HANDLE				dev_hnd;
+static	int					thread_run_status = 0;
+static	HANDLE				device_handle;
 
 void*						user_mode_func_table[] = {
 	u_create_virtual_path,
@@ -36,17 +39,18 @@ void*						user_mode_func_table[] = {
 void*						daemon_caller(void* buf);
 static	DWORD	WINAPI	device_read_func(LPVOID p_null);
 
-void init_call_gate()
+bool init_call_gate()
 {
 	if(init_flag) {
-		return;
+		return true;
 	}
 
 	InitializeCriticalSection(&call_kernel_lock);
 	InitializeCriticalSection(&flag_lock);
 	InitializeCriticalSection(&kernel_write_lock);
 	kernel_ret_event = CreateEvent(NULL, TRUE, FALSE, NULL);
-	return;
+	init_flag = true;
+	return true;
 }
 
 void destroy_call_gate()
@@ -59,6 +63,7 @@ void destroy_call_gate()
 	DeleteCriticalSection(&flag_lock);
 	DeleteCriticalSection(&kernel_write_lock);
 	CloseHandle(kernel_ret_event);
+	init_flag = false;
 	return;
 }
 
@@ -77,9 +82,23 @@ bool start_call_gate()
 		return true;
 	}
 
+	if(!load_driver()) {
+		LeaveCriticalSection(&flag_lock);
+		MessageBox(NULL, L"Cannot load driver!", L"Error", MB_OK | MB_ICONWARNING);
+		return false;
+	}
+
+	dev_hnd = open_device();
+
+	if(dev_hnd == NULL) {
+		LeaveCriticalSection(&flag_lock);
+		return false;
+	}
+
 	//Start device reading thread.
 	calling_count = 0;
 	run_flag = true;
+	thread_run_status = 0;
 	device_read_thread_hnd = CreateThread(
 	                             NULL,
 	                             0,
@@ -89,6 +108,16 @@ bool start_call_gate()
 	                             NULL);
 
 	if(device_read_thread_hnd == NULL) {
+		run_flag = false;
+		LeaveCriticalSection(&flag_lock);
+		return false;
+	}
+
+	while(thread_run_status == 0) {
+		Sleep(1000);
+	}
+
+	if(thread_run_status < 0) {
 		run_flag = false;
 		LeaveCriticalSection(&flag_lock);
 		return false;
@@ -111,9 +140,14 @@ void stop_call_gate()
 
 	run_flag = false;
 	LeaveCriticalSection(&flag_lock);
-
+	k_close_call_gate();
+	close_device(device_handle);
+	close_device(dev_hnd);
+	unload_driver();
+	PRINTF("Waiting for device reading thread to exit..\n");
 	//Waiting for threads to exit
 	WaitForSingleObject(device_read_thread_hnd, INFINITE);
+	PRINTF("Device reading thread exited..\n");
 	CloseHandle(device_read_thread_hnd);
 
 	while(calling_count > 0) {
@@ -133,8 +167,19 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 	parg_head p_arg_head;
 	char* p;
 	ret_pkg	call_ret;
+	ret_pkg tmp_ret;
 	DWORD length_wrritten;
 	UINT32 count;
+
+	device_handle = open_device();
+
+	if(device_handle == NULL) {
+		thread_run_status = -1;
+		return 0;
+
+	} else {
+		thread_run_status = 1;
+	}
 
 	p_call_head = (pcall_pkg)read_buf;
 
@@ -143,9 +188,10 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 		length_read = 0;
 
 		while(length_read < sizeof(UINT16)) {
-			read_device(read_buf + length_read, sizeof(UINT16), &len);
+			read_device(device_handle, read_buf + length_read, sizeof(UINT16) - length_read, &len);
 
 			if(!run_flag) {
+				close_device(device_handle);
 				return 0;
 			}
 
@@ -157,17 +203,19 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 			//Get return value
 			length_read = 0;
 
-			while(length_read < sizeof(UINT64)) {
-				read_device(read_buf + length_read, sizeof(UINT64) - length_read, &len);
+			while(length_read < sizeof(ret_pkg) - sizeof(UINT16)) {
+				read_device(device_handle, (char*)&tmp_ret + sizeof(UINT16) + length_read,
+				            sizeof(ret_pkg) - sizeof(UINT16) - length_read, &len);
 
 				if(!run_flag) {
+					close_device(device_handle);
 					return 0;
 				}
 
 				length_read += len;
 			}
 
-			kernel_ret = *(pret_ptr)read_buf;
+			kernel_ret = tmp_ret.ret;
 			SetEvent(kernel_ret_event);
 			continue;
 
@@ -177,9 +225,10 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 			length_read = 0;
 
 			while(length_read < sizeof(call_pkg) - sizeof(UINT16)) {
-				read_device(read_buf + sizeof(UINT16) + length_read, sizeof(call_pkg) - sizeof(UINT16) - length_read, &len);
+				read_device(device_handle, read_buf + sizeof(UINT16) + length_read, sizeof(call_pkg) - sizeof(UINT16) - length_read, &len);
 
 				if(!run_flag) {
+					close_device(device_handle);
 					return 0;
 				}
 
@@ -213,7 +262,7 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 
 				//Write return value
 				EnterCriticalSection(&kernel_write_lock);
-				write_device(&call_ret, sizeof(call_ret), &length_wrritten);
+				write_device(device_handle, &call_ret, sizeof(call_ret), &length_wrritten);
 				LeaveCriticalSection(&kernel_write_lock);
 				continue;
 			}
@@ -229,10 +278,11 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 				length_read = 0;
 
 				while(length_read < sizeof(parg_head)) {
-					read_device(p, sizeof(parg_head) - length_read, &len);
+					read_device(device_handle, p, sizeof(parg_head) - length_read, &len);
 
 					if(!run_flag) {
 						free_memory(call_buf);
+						close_device(device_handle);
 						return 0;
 					}
 
@@ -244,10 +294,11 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 				length_read = 0;
 
 				while(length_read < p_arg_head->size) {
-					read_device(p, p_arg_head->size - length_read, &len);
+					read_device(device_handle, p, p_arg_head->size - length_read, &len);
 
 					if(!run_flag) {
 						free_memory(call_buf);
+						close_device(device_handle);
 						return 0;
 					}
 
@@ -262,12 +313,13 @@ DWORD WINAPI device_read_func(LPVOID p_null)
 			call_ret.ret.value = daemon_caller(call_buf);
 			//Write return value
 			EnterCriticalSection(&kernel_write_lock);
-			write_device(&call_ret, sizeof(call_ret), &length_wrritten);
+			write_device(device_handle, &call_ret, sizeof(call_ret), &length_wrritten);
 			LeaveCriticalSection(&kernel_write_lock);
 			free_memory(call_buf);
 		}
 	}
 
+	close_device(device_handle);
 	return 0;
 }
 
@@ -290,7 +342,6 @@ VOID k_enable_filter()
 	calling_count++;
 	LeaveCriticalSection(&flag_lock);
 
-	LeaveCriticalSection(&flag_lock);
 	call_head.call_number = K_ENABLE_FILTER;
 	call_head.return_type = TYPE_VOID;
 	call_head.arg_num = 0;
@@ -299,7 +350,8 @@ VOID k_enable_filter()
 	//Call function
 	EnterCriticalSection(&call_kernel_lock);
 	EnterCriticalSection(&kernel_write_lock);
-	write_device(&call_head, sizeof(call_pkg), &length_wrritten);
+	PRINTF(("Calling kernel...\n"));
+	write_device(dev_hnd, &call_head, sizeof(call_pkg), &length_wrritten);
 	LeaveCriticalSection(&kernel_write_lock);
 
 	//Wait for return
@@ -337,7 +389,7 @@ VOID k_disable_filter()
 	//Call function
 	EnterCriticalSection(&call_kernel_lock);
 	EnterCriticalSection(&kernel_write_lock);
-	write_device(&call_head, sizeof(call_pkg), &length_wrritten);
+	write_device(dev_hnd, &call_head, sizeof(call_pkg), &length_wrritten);
 	LeaveCriticalSection(&kernel_write_lock);
 
 	//Wait for return
@@ -374,7 +426,7 @@ BOOLEAN k_set_base_dir(PWCHAR path)
 
 	//Compute the size of new buf.
 	buf_len = (UINT32)(
-	              sizeof(call_pkg) + sizeof(arg_head) + wcslen(path) + sizeof(WCHAR)
+	              sizeof(call_pkg) + sizeof(arg_head) + wcslen(path) * sizeof(WCHAR) + sizeof(WCHAR)
 	          );
 	buf = get_memory(buf_len);
 
@@ -392,7 +444,7 @@ BOOLEAN k_set_base_dir(PWCHAR path)
 
 	//Fill args
 	p_arg = (parg_head)(p_call_head + 1);
-	p_arg->size = (UINT32)(wcslen(path) + sizeof(WCHAR));
+	p_arg->size = (UINT32)(wcslen(path) * sizeof(WCHAR) + sizeof(WCHAR));
 	p_arg->type = TYPE_WCHAR_STRING;
 
 	p_arg_value = (char*)(p_arg + 1);
@@ -401,7 +453,7 @@ BOOLEAN k_set_base_dir(PWCHAR path)
 	//Call function
 	EnterCriticalSection(&call_kernel_lock);
 	EnterCriticalSection(&kernel_write_lock);
-	write_device(buf, buf_len, &length_wrritten);
+	write_device(dev_hnd, buf, buf_len, &length_wrritten);
 	LeaveCriticalSection(&kernel_write_lock);
 
 	//Wait for return
@@ -439,8 +491,8 @@ hvdir k_add_virtual_path(PWCHAR src, PWCHAR dest, UINT32 flag)
 
 	//Compute the size of new buf.
 	buf_len = (UINT32)(
-	              sizeof(call_pkg) + sizeof(arg_head) * 3 + wcslen(src)
-	              + wcslen(dest) + sizeof(WCHAR) * 2 + sizeof(UINT32)
+	              sizeof(call_pkg) + sizeof(arg_head) * 3 + wcslen(src) * sizeof(WCHAR)
+	              + wcslen(dest) * sizeof(WCHAR) + sizeof(WCHAR) * 2 + sizeof(UINT32)
 	          );
 	buf = get_memory(buf_len);
 
@@ -458,22 +510,22 @@ hvdir k_add_virtual_path(PWCHAR src, PWCHAR dest, UINT32 flag)
 
 	//First arg
 	p_arg = (parg_head)(p_call_head + 1);
-	p_arg->size = (UINT32)(wcslen(src) + sizeof(WCHAR));
+	p_arg->size = (UINT32)(wcslen(src) * sizeof(WCHAR) + sizeof(WCHAR));
 	p_arg->type = TYPE_WCHAR_STRING;
 
 	p_arg_value = (char*)(p_arg + 1);
 	wcscpy((PWCHAR)p_arg_value, src);
 
 	//Second arg
-	p_arg = (parg_head)(p_arg_value + wcslen(src) + sizeof(WCHAR));
-	p_arg->size = (UINT32)(wcslen(dest) + sizeof(WCHAR));
+	p_arg = (parg_head)(p_arg_value + wcslen(src) * sizeof(WCHAR) + sizeof(WCHAR));
+	p_arg->size = (UINT32)(wcslen(dest) * sizeof(WCHAR) + sizeof(WCHAR));
 	p_arg->type = TYPE_WCHAR_STRING;
 
 	p_arg_value = (char*)(p_arg + 1);
-	wcscpy((PWCHAR)p_arg_value, src);
+	wcscpy((PWCHAR)p_arg_value, dest);
 
 	//Third arg
-	p_arg = (parg_head)(p_arg_value + wcslen(dest) + sizeof(WCHAR));
+	p_arg = (parg_head)(p_arg_value + wcslen(dest) * sizeof(WCHAR) + sizeof(WCHAR));
 	p_arg->size = sizeof(UINT32);
 	p_arg->type = TYPE_UINT32;
 
@@ -483,7 +535,7 @@ hvdir k_add_virtual_path(PWCHAR src, PWCHAR dest, UINT32 flag)
 	//Call function
 	EnterCriticalSection(&call_kernel_lock);
 	EnterCriticalSection(&kernel_write_lock);
-	write_device(buf, buf_len, &length_wrritten);
+	write_device(dev_hnd, buf, buf_len, &length_wrritten);
 	LeaveCriticalSection(&kernel_write_lock);
 
 	//Wait for return
@@ -492,6 +544,7 @@ hvdir k_add_virtual_path(PWCHAR src, PWCHAR dest, UINT32 flag)
 	ret = kernel_ret.ret_32;
 	LeaveCriticalSection(&call_kernel_lock);
 	calling_count--;
+	free_memory(buf);
 	return ret;
 }
 
@@ -522,7 +575,7 @@ NTSTATUS k_change_virtual_path(hvdir vdir_hnd, PWCHAR new_src, UINT32 flag)
 	//Compute the size of new buf.
 	buf_len = (UINT32)(
 	              sizeof(call_pkg) + sizeof(arg_head) * 3 + sizeof(hvdir)
-	              + wcslen(new_src) + sizeof(WCHAR) + sizeof(UINT32)
+	              + wcslen(new_src) * sizeof(WCHAR) + sizeof(WCHAR) + sizeof(UINT32)
 	          );
 	buf = get_memory(buf_len);
 
@@ -547,15 +600,15 @@ NTSTATUS k_change_virtual_path(hvdir vdir_hnd, PWCHAR new_src, UINT32 flag)
 	*(phvdir)p_arg_value = vdir_hnd;
 
 	//Second arg
-	p_arg = (parg_head)(p_arg_value + wcslen(new_src) + sizeof(WCHAR));
-	p_arg->size = (UINT32)(wcslen(new_src) + sizeof(WCHAR));
+	p_arg = (parg_head)(p_arg_value + wcslen(new_src) * sizeof(WCHAR) + sizeof(WCHAR));
+	p_arg->size = (UINT32)(wcslen(new_src) * sizeof(WCHAR) + sizeof(WCHAR));
 	p_arg->type = TYPE_WCHAR_STRING;
 
 	p_arg_value = (char*)(p_arg + 1);
 	wcscpy((PWCHAR)p_arg_value, new_src);
 
 	//Third arg
-	p_arg = (parg_head)(p_arg_value + wcslen(new_src) + sizeof(WCHAR));
+	p_arg = (parg_head)(p_arg_value + wcslen(new_src) * sizeof(WCHAR) + sizeof(WCHAR));
 	p_arg->size = sizeof(UINT32);
 	p_arg->type = TYPE_UINT32;
 
@@ -565,7 +618,7 @@ NTSTATUS k_change_virtual_path(hvdir vdir_hnd, PWCHAR new_src, UINT32 flag)
 	//Call function
 	EnterCriticalSection(&call_kernel_lock);
 	EnterCriticalSection(&kernel_write_lock);
-	write_device(buf, buf_len, &length_wrritten);
+	write_device(dev_hnd, buf, buf_len, &length_wrritten);
 	LeaveCriticalSection(&kernel_write_lock);
 
 	//Wait for return
@@ -629,7 +682,7 @@ BOOLEAN k_remove_virtual_path(hvdir vdir_hnd)
 	//Call function
 	EnterCriticalSection(&call_kernel_lock);
 	EnterCriticalSection(&kernel_write_lock);
-	write_device(buf, buf_len, &length_wrritten);
+	write_device(dev_hnd, buf, buf_len, &length_wrritten);
 	LeaveCriticalSection(&kernel_write_lock);
 
 	//Wait for return
@@ -667,12 +720,43 @@ VOID k_clean_all_virtual_path()
 	//Call function
 	EnterCriticalSection(&call_kernel_lock);
 	EnterCriticalSection(&kernel_write_lock);
-	write_device(&call_head, sizeof(call_pkg), &length_wrritten);
+	write_device(dev_hnd, &call_head, sizeof(call_pkg), &length_wrritten);
 	LeaveCriticalSection(&kernel_write_lock);
 
 	//Wait for return
 	ResetEvent(kernel_ret_event);
 	WaitForSingleObject(kernel_ret_event, INFINITE);
+	LeaveCriticalSection(&call_kernel_lock);
+	calling_count--;
+	return;
+}
+
+VOID k_close_call_gate()
+{
+	call_pkg call_head;
+	DWORD length_wrritten;
+
+	EnterCriticalSection(&flag_lock);
+
+	if(run_flag) {
+		LeaveCriticalSection(&flag_lock);
+		return;
+	}
+
+	calling_count++;
+	LeaveCriticalSection(&flag_lock);
+
+	call_head.call_number = K_CLOSE_CALL_GATE;
+	call_head.return_type = TYPE_VOID;
+	call_head.arg_num = 0;
+	call_head.buf_len = sizeof(call_pkg);
+
+	//Call function
+	EnterCriticalSection(&call_kernel_lock);
+	EnterCriticalSection(&kernel_write_lock);
+	write_device(dev_hnd, &call_head, sizeof(call_pkg), &length_wrritten);
+	LeaveCriticalSection(&kernel_write_lock);
+
 	LeaveCriticalSection(&call_kernel_lock);
 	calling_count--;
 	return;
@@ -693,7 +777,7 @@ BOOLEAN u_create_virtual_path(hvdir new_vdir_hnd, PWCHAR dest, UINT32 flag)
 
 	calling_count++;
 	LeaveCriticalSection(&flag_lock);
-	//
+	PRINTF("sms:u_create_virtual_path called.new_vdir_hnd=0x%.8X,dest=\"%ws\",flag=0x%.8X\n", new_vdir_hnd, dest, flag);
 	calling_count--;
 	return TRUE;
 }
@@ -713,7 +797,7 @@ BOOLEAN u_change_virtual_path(hvdir vdir_hnd)
 
 	calling_count++;
 	LeaveCriticalSection(&flag_lock);
-	//
+	PRINTF("sms:u_change_virtual_path called.vdir_hnd=0x%.8X.\n", vdir_hnd);
 	calling_count--;
 	return TRUE;
 }

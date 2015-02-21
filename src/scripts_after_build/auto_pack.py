@@ -61,11 +61,17 @@ def main():
 
         shutil.rmtree(g_package_path,True)
         #Create folders
-        os.mkdir(g_package_win32_debug)
-        os.mkdir(g_package_win32_release)
-        os.mkdir(g_package_x64_debug)
-        os.mkdir(g_package_x64_release)
-
+        if not os.path.exists(g_package_path):
+                os.mkdir(g_package_path)
+        if not os.path.exists(g_package_win32_debug):
+                os.mkdir(g_package_win32_debug)
+        if not os.path.exists(g_package_win32_release):
+                os.mkdir(g_package_win32_release)
+        if not os.path.exists(g_package_x64_debug):
+                os.mkdir(g_package_x64_debug)
+        if not os.path.exists(g_package_x64_release):
+                os.mkdir(g_package_x64_release)
+                
         #Copy files
         print("Copying files...\n")
         #Win32 Debug

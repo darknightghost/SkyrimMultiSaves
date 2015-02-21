@@ -28,9 +28,12 @@ pipe					write_buf;
 
 static	PDEVICE_OBJECT	p_control_device = NULL;
 
-static	BOOLEAN			open_fag = FALSE;
+static	BOOLEAN			open_flag = FALSE;
+static	BOOLEAN			disable_flag = FALSE;
+static	PEPROCESS		p_process;
 static	KMUTEX			flag_lock;
 static	WCHAR			driver_full_name[(sizeof(DRIVER_SRV_REG_PATH) + sizeof(SERVICE_NAME)) / sizeof(WCHAR) + 1];
+static	VOID			disable_thread(PVOID context);
 
 static	NTSTATUS		dispatch_func(PDEVICE_OBJECT p_device, PIRP p_irp);				//Dispatch func
 
@@ -68,6 +71,8 @@ NTSTATUS init_control_device(PDRIVER_OBJECT p_driver_object)
 		destroy_pipe(&read_buf);
 		return status;
 	}
+
+	disable_flag = FALSE;
 
 	//Create CDO
 	status = IoCreateDevice(
@@ -111,15 +116,51 @@ NTSTATUS init_control_device(PDRIVER_OBJECT p_driver_object)
 	return status;
 }
 
+VOID disable_control_device()
+{
+	HANDLE hnd;
+	KeWaitForSingleObject(
+	    &flag_lock,
+	    Executive,
+	    KernelMode,
+	    FALSE,
+	    0
+	);
+	disable_flag = TRUE;
+	KeReleaseMutex(&flag_lock, FALSE);
+	PsCreateSystemThread(
+	    &hnd,
+	    0,
+	    NULL,
+	    NULL,
+	    NULL,
+	    disable_thread,
+	    NULL);
+	ZwClose(hnd);
+	return;
+}
+
+VOID disable_thread(PVOID context)
+{
+	set_pipe_block_status(&read_buf, FALSE);
+	set_pipe_block_status(&write_buf, FALSE);
+	PsTerminateSystemThread(0);
+	UNREFERENCED_PARAMETER(context);
+	return;
+}
+
 VOID destroy_control_device()
 {
 	UNICODE_STRING str_symbolic_link
 	    = RTL_CONSTANT_STRING(SYMBOLLINK_NAME);
 
 	PASSIVE_LEVEL_ASSERT;
+
 	//Destroy buffers
-	destroy_pipe(&read_buf);
-	destroy_pipe(&write_buf);
+	if(!disable_flag) {
+		destroy_pipe(&read_buf);
+		destroy_pipe(&write_buf);
+	}
 
 	//Destroy device
 	IoDeleteSymbolicLink(&str_symbolic_link);
@@ -166,33 +207,32 @@ NTSTATUS dispatch_func_create(PDEVICE_OBJECT p_device, PIRP p_irp, PIO_STACK_LOC
 	PASSIVE_LEVEL_ASSERT;
 
 	//Test if the device has been opened
-	if(!NT_SUCCESS(
-	       KeWaitForSingleObject(
-	           &flag_lock,
-	           Executive,
-	           KernelMode,
-	           FALSE,
-	           0
-	       ))) {
-		p_irp->IoStatus.Information = 0;
-		p_irp->IoStatus.Status = STATUS_DEVICE_BUSY;
-		IoCompleteRequest(p_irp, IO_NO_INCREMENT);
-		return STATUS_DEVICE_BUSY;
-	}
+	KeWaitForSingleObject(
+	    &flag_lock,
+	    Executive,
+	    KernelMode,
+	    FALSE,
+	    0
+	);
 
-	if(open_fag) {
-		p_irp->IoStatus.Information = 0;
-		p_irp->IoStatus.Status = STATUS_DEVICE_BUSY;
-		IoCompleteRequest(p_irp, IO_NO_INCREMENT);
-		KeReleaseMutex(&flag_lock, FALSE);
-		return STATUS_DEVICE_BUSY;
+	if(open_flag) {
+		if(p_process != PsGetCurrentProcess()) {
+			p_irp->IoStatus.Information = 0;
+			p_irp->IoStatus.Status = STATUS_DEVICE_BUSY;
+			IoCompleteRequest(p_irp, IO_NO_INCREMENT);
+			KeReleaseMutex(&flag_lock, FALSE);
+			return STATUS_DEVICE_BUSY;
+		}
+
+	} else {
+		p_process = PsGetCurrentProcess();
 	}
 
 	//Complete irp
 	p_irp->IoStatus.Information = 0;
 	p_irp->IoStatus.Status = STATUS_SUCCESS;
 	IoCompleteRequest(p_irp, IO_NO_INCREMENT);
-	open_fag = TRUE;
+	open_flag = TRUE;
 	KeReleaseMutex(&flag_lock, FALSE);
 	UNREFERENCED_PARAMETER(p_device);
 	UNREFERENCED_PARAMETER(p_irpsp);
@@ -238,8 +278,24 @@ NTSTATUS dispatch_func_read(PDEVICE_OBJECT p_device, PIRP p_irp, PIO_STACK_LOCAT
 {
 	NTSTATUS status;
 	SIZE_T length_read;
-
 	PASSIVE_LEVEL_ASSERT;
+	KeWaitForSingleObject(
+	    &flag_lock,
+	    Executive,
+	    KernelMode,
+	    FALSE,
+	    0
+	);
+
+	if(disable_flag) {
+		p_irp->IoStatus.Information = 0;
+		p_irp->IoStatus.Status = STATUS_NO_SUCH_DEVICE;
+		IoCompleteRequest(p_irp, IO_NO_INCREMENT);
+		KeReleaseMutex(&flag_lock, FALSE);
+		return STATUS_NO_SUCH_DEVICE;
+	}
+
+	KeReleaseMutex(&flag_lock, FALSE);
 	//Read data
 	status = read_pipe(
 	             &read_buf,
@@ -265,13 +321,32 @@ NTSTATUS dispatch_func_read(PDEVICE_OBJECT p_device, PIRP p_irp, PIO_STACK_LOCAT
 NTSTATUS dispatch_func_write(PDEVICE_OBJECT p_device, PIRP p_irp, PIO_STACK_LOCATION p_irpsp)
 {
 	NTSTATUS status;
+	SIZE_T length_written;
 
 	PASSIVE_LEVEL_ASSERT;
+	KeWaitForSingleObject(
+	    &flag_lock,
+	    Executive,
+	    KernelMode,
+	    FALSE,
+	    0
+	);
+
+	if(disable_flag) {
+		p_irp->IoStatus.Information = 0;
+		p_irp->IoStatus.Status = STATUS_NO_SUCH_DEVICE;
+		IoCompleteRequest(p_irp, IO_NO_INCREMENT);
+		KeReleaseMutex(&flag_lock, FALSE);
+		return STATUS_NO_SUCH_DEVICE;
+	}
+
+	KeReleaseMutex(&flag_lock, FALSE);
 	//Write data
 	status = write_pipe(
 	             &write_buf,
 	             p_irp->UserBuffer,
-	             p_irpsp->Parameters.Write.Length);
+	             p_irpsp->Parameters.Write.Length,
+	             &length_written);
 
 	if(!NT_SUCCESS(status)) {
 		p_irp->IoStatus.Information = 0;
@@ -281,7 +356,7 @@ NTSTATUS dispatch_func_write(PDEVICE_OBJECT p_device, PIRP p_irp, PIO_STACK_LOCA
 	}
 
 	//Complete irp
-	p_irp->IoStatus.Information = p_irpsp->Parameters.Write.Length;
+	p_irp->IoStatus.Information = length_written;
 	p_irp->IoStatus.Status = STATUS_SUCCESS;
 	IoCompleteRequest(p_irp, IO_NO_INCREMENT);
 	UNREFERENCED_PARAMETER(p_device);

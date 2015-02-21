@@ -35,11 +35,11 @@
 		#define	RAW_BREAKPOINT	_asm int 3
 
 	#endif // !AMD64
-
+	void	passive_level_assert(char* file_name, ULONG line);
 	//Make sure the operating system will not show blue screen with death without kernel debuggers
 	#define	BREAKPOINT				if(!KdRefreshDebuggerNotPresent()) RAW_BREAKPOINT
 	#define	BREAKIFNOT(condition)	if(!(condition)) if(!KdRefreshDebuggerNotPresent())	RAW_BREAKPOINT
-	#define	PASSIVE_LEVEL_ASSERT	ASSERT(KeGetCurrentIrql() <= PASSIVE_LEVEL)
+	#define	PASSIVE_LEVEL_ASSERT	passive_level_assert(__FILE__,__LINE__)
 #endif //_DEBUG
 #ifndef _DEBUG
 

@@ -25,7 +25,6 @@ static	wchar_t*		get_driver_file_name();
 
 static	SC_HANDLE		l_scm_hnd = NULL;
 static	SC_HANDLE		l_service_hnd = NULL;
-static	HANDLE			dev_hnd = NULL;
 
 bool load_driver()
 {
@@ -130,26 +129,22 @@ void unload_driver()
 	return;
 }
 
-bool open_device()
+HANDLE open_device()
 {
-	if(dev_hnd != NULL) {
-		return true;
+	HANDLE ret;
+	ret = CreateFile(
+	          R3_SYMBOLLINK_NAME,
+	          GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0,
+	          OPEN_EXISTING,
+	          FILE_ATTRIBUTE_SYSTEM, 0);
+
+	if(ret == INVALID_HANDLE_VALUE) {
+		return NULL;
 	}
 
-	dev_hnd = CreateFile(
-	              R3_SYMBOLLINK_NAME,
-	              GENERIC_READ | GENERIC_WRITE, 0, 0,
-	              OPEN_EXISTING,
-	              FILE_ATTRIBUTE_SYSTEM, 0);
-
-	if(dev_hnd == INVALID_HANDLE_VALUE) {
-		dev_hnd = NULL;
-		return false;
-	}
-
-	return true;
+	return ret;
 }
-void close_device()
+void close_device(HANDLE dev_hnd)
 {
 	if(dev_hnd == NULL) {
 		return;
@@ -158,7 +153,7 @@ void close_device()
 	CloseHandle(dev_hnd);
 }
 
-bool read_device(void* buf, DWORD len, LPDWORD p_length_read)
+bool read_device(HANDLE dev_hnd, void* buf, DWORD len, LPDWORD p_length_read)
 {
 	if(dev_hnd == NULL) {
 		return false;
@@ -173,7 +168,7 @@ bool read_device(void* buf, DWORD len, LPDWORD p_length_read)
 	return false;
 }
 
-bool write_device(void* buf, DWORD size, LPDWORD p_length_written)
+bool write_device(HANDLE dev_hnd, void* buf, DWORD size, LPDWORD p_length_written)
 {
 	if(dev_hnd == NULL) {
 		return false;
@@ -199,7 +194,7 @@ wchar_t* get_driver_file_name()
 	#ifndef _AMD64
 	sys_64_flag = FALSE;
 
-	if(IsWow64Process(
+	if(!IsWow64Process(
 	       GetCurrentProcess(),
 	       &sys_64_flag)) {
 		MessageBox(NULL, L"Cannot test the version of Windows!", L"Error", MB_OK | MB_ICONERROR);

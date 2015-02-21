@@ -18,16 +18,25 @@
 #ifndef GATE_H_INCLUDE
 #define	GATE_H_INCLUDE
 
-#define		UMDF_USING_NTSTATUS
-
 #include "../common.h"
 #include "../../common/driver/gate_func_defines.h"
 #include "driver.h"
-#include <ntstatus.h>
 
-void		init_call_gate();
+bool		init_call_gate();
 void		destroy_call_gate();
 bool		start_call_gate();
 void		stop_call_gate();
+
+#ifndef STATUS_UNSUCCESSFUL
+	#define		STATUS_UNSUCCESSFUL				((NTSTATUS)0xC0000001L)
+#endif // !STATUS_UNSUCCESSFUL
+
+#ifndef STATUS_INSUFFICIENT_RESOURCES
+	#define		STATUS_INSUFFICIENT_RESOURCES	((NTSTATUS)0xC000009AL)
+#endif // !STATUS_INSUFFICIENT_RESOURCES
+
+#ifndef NT_SUCCESS
+	#define		NT_SUCCESS(Status)				(((NTSTATUS)(Status)) >= 0)
+#endif // !NT_SUCCESS
 
 #endif // !GATE_H_INCLUDE

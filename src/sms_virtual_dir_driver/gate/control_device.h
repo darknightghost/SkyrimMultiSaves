@@ -25,5 +25,6 @@ extern	pipe				write_buf;
 
 NTSTATUS		init_control_device(PDRIVER_OBJECT p_driver_object);
 VOID			destroy_control_device();
+VOID			disable_control_device();
 
 #endif // !CONTROL_DEVICE_H_INCLUDE

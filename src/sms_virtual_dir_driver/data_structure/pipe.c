@@ -38,6 +38,7 @@ NTSTATUS initialize_pipe(ppipe p_pipe, SIZE_T buf_size)
 	p_pipe->count = 0;
 	p_pipe->destroy_flag = FALSE;
 	p_pipe->empty_flag = TRUE;
+	p_pipe->block_flag = TRUE;
 
 	//Initialize pointers
 	p_pipe->p_end = p_pipe->p_start = p_pipe->buf;
@@ -60,17 +61,50 @@ VOID destroy_pipe(ppipe p_pipe)
 	    FALSE,
 	    NULL
 	);
+	PASSIVE_LEVEL_ASSERT;
 	p_pipe->destroy_flag = TRUE;
 	KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
 
+	PASSIVE_LEVEL_ASSERT;
+
 	while(p_pipe->count > 0) {
+		PASSIVE_LEVEL_ASSERT;
 		KeSetEvent(&(p_pipe->read_event), 0, FALSE);
 		KeSetEvent(&(p_pipe->write_event), 0, FALSE);
-		sleep(100);
+		sleep(1000);
 	}
 
 	free_memory(p_pipe->buf);
 	KdPrint(("sms:Pipe destroyed.Bufsize=%d.\n", p_pipe->buf_size));
+	return;
+}
+
+VOID set_pipe_block_status(ppipe p_pipe, BOOLEAN block_status)
+{
+	PASSIVE_LEVEL_ASSERT;
+	KeWaitForSingleObject(
+	    &(p_pipe->buf_lock),
+	    Executive,
+	    KernelMode,
+	    FALSE,
+	    NULL
+	);
+	PASSIVE_LEVEL_ASSERT;
+
+	if(block_status && !p_pipe->block_flag) {
+		p_pipe->block_flag = TRUE;
+		KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
+
+	} else if(!block_status && p_pipe->block_flag) {
+		p_pipe->block_flag = FALSE;
+		KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
+		KeSetEvent(&(p_pipe->write_event), 0, FALSE);
+		KeSetEvent(&(p_pipe->read_event), 0, FALSE);
+
+	} else {
+		KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
+	}
+
 	return;
 }
 
@@ -79,8 +113,10 @@ NTSTATUS read_pipe(ppipe p_pipe, PVOID buf, SIZE_T buf_size, PSIZE_T p_length_re
 	NTSTATUS status;
 	PCHAR p_pipe_buf_end;
 	PCHAR p_output;
+	LARGE_INTEGER timeout;
 
 	PASSIVE_LEVEL_ASSERT;
+	timeout.QuadPart = (LONGLONG)(-10e7) * 5;
 	status = KeWaitForSingleObject(
 	             &(p_pipe->buf_lock),
 	             Executive,
@@ -107,22 +143,31 @@ NTSTATUS read_pipe(ppipe p_pipe, PVOID buf, SIZE_T buf_size, PSIZE_T p_length_re
 
 	p_output = (PCHAR)buf;
 	p_pipe_buf_end = p_pipe->buf + p_pipe->buf_size - 1;
+	*p_length_read = 0;
 
 	//If the pipe is empty,wait for data.
 	while(is_pipe_empty(p_pipe)
 	      && !p_pipe->destroy_flag) {
 		KeResetEvent(&(p_pipe->write_event));
 		KeSetEvent(&(p_pipe->read_event), 0, FALSE);
+
+		if(!p_pipe->block_flag) {
+			KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
+			(p_pipe->count)--;
+			return STATUS_SUCCESS;
+		}
+
 		KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
 		status = KeWaitForSingleObject(
 		             &(p_pipe->write_event),
 		             Executive,
 		             KernelMode,
 		             FALSE,
-		             NULL
+		             &timeout
 		         );
 
-		if(!NT_SUCCESS(status)) {
+		if(status == STATUS_TIMEOUT
+		   || !NT_SUCCESS(status)) {
 			(p_pipe->count)--;
 			return status;
 		}
@@ -152,7 +197,6 @@ NTSTATUS read_pipe(ppipe p_pipe, PVOID buf, SIZE_T buf_size, PSIZE_T p_length_re
 	}
 
 	//Read data
-	*p_length_read = 0;
 
 	if(p_pipe->p_start > p_pipe->p_end) {
 		while(p_pipe->p_start <= p_pipe_buf_end
@@ -192,11 +236,10 @@ NTSTATUS read_pipe(ppipe p_pipe, PVOID buf, SIZE_T buf_size, PSIZE_T p_length_re
 	return STATUS_SUCCESS;
 }
 
-NTSTATUS write_pipe(ppipe p_pipe, PVOID data, SIZE_T length_to_write)
+NTSTATUS write_pipe(ppipe p_pipe, PVOID data, SIZE_T length_to_write, PSIZE_T p_length_written)
 {
 	NTSTATUS status;
 	PCHAR p_input;
-	SIZE_T length_written;
 
 	PASSIVE_LEVEL_ASSERT;
 	status = KeWaitForSingleObject(
@@ -223,14 +266,20 @@ NTSTATUS write_pipe(ppipe p_pipe, PVOID data, SIZE_T length_to_write)
 	}
 
 	p_input = (PCHAR)data;
-	length_written = 0;
+	(*p_length_written) = 0;
 
-	while(length_written < length_to_write) {
+	while(*p_length_written < length_to_write) {
 		//If the pipe is full,wait for space.
 		while(is_pipe_full(p_pipe)
 		      && !p_pipe->destroy_flag) {
 			KeResetEvent(&(p_pipe->read_event));
 			KeSetEvent(&(p_pipe->write_event), 0, FALSE);
+
+			if(!p_pipe->block_flag) {
+				(p_pipe->count)--;
+				return STATUS_SUCCESS;
+			}
+
 			KeReleaseMutex(&(p_pipe->buf_lock), FALSE);
 			status = KeWaitForSingleObject(
 			             &(p_pipe->read_event),
@@ -270,8 +319,8 @@ NTSTATUS write_pipe(ppipe p_pipe, PVOID data, SIZE_T length_to_write)
 		}
 
 		//Write data
-		write_buf(p_pipe, p_input, &length_written, length_to_write);
-		p_input = (PCHAR)data + length_written;
+		write_buf(p_pipe, p_input, p_length_written, length_to_write);
+		p_input = (PCHAR)data + *p_length_written;
 	}
 
 	KeSetEvent(&(p_pipe->write_event), 0, FALSE);

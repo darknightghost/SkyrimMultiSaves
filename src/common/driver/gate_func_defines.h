@@ -57,6 +57,7 @@ hvdir			k_add_virtual_path(PWCHAR src, PWCHAR dest, UINT32 flag);
 NTSTATUS		k_change_virtual_path(hvdir vdir_hnd, PWCHAR new_src, UINT32 flag);
 BOOLEAN			k_remove_virtual_path(hvdir vdir_hnd);
 VOID			k_clean_all_virtual_path();
+VOID			k_close_call_gate();
 
 BOOLEAN			u_create_virtual_path(hvdir new_vdir_hnd, PWCHAR dest, UINT32 flag);
 BOOLEAN			u_change_virtual_path(hvdir vdir_hnd);
@@ -69,6 +70,7 @@ BOOLEAN			u_change_virtual_path(hvdir vdir_hnd);
 #define	K_CHANGE_VIRTUAL_PATH		0x0004
 #define	K_REMOVE_VIRTUAL_PATH		0x0005
 #define	K_CLEAN_ALL_VIRTUAL_PATH	0x0006
+#define	K_CLOSE_CALL_GATE			0x0007
 
 #define	U_CREATE_VIRTUAL_PATH		0x8000
 #define	U_CHANGE_VIRTUAL_PATH		0x8001

@@ -17,6 +17,7 @@
 
 #include "common.h"
 #include "driver/driver.h"
+#include "driver/gate.h"
 
 #define	SMS_MUTEX_NAME	L"sms_virtual_dir_mutex"
 
@@ -38,31 +39,32 @@ int __cdecl main(int argc, char* argn[])
 		return 0;
 	}
 
-	if(!load_driver()) {
-		MessageBox(NULL, L"Cannot load driver!", L"Error", MB_OK | MB_ICONWARNING);
+	if(!init_call_gate()) {
+		MessageBox(NULL, L"Cannot initialize call gate!", L"Error", MB_OK | MB_ICONWARNING);
+		ReleaseMutex(mutex_hnd);
+		CloseHandle(mutex_hnd);
 		PAUSE;
 		return -1;
 	}
 
-	if(!open_device()) {
-		MessageBox(NULL, L"Cannot open control device!", L"Error", MB_OK | MB_ICONWARNING);
-		unload_driver();
+	if(!start_call_gate()) {
+		MessageBox(NULL, L"Cannot start call gate module!", L"Error", MB_OK | MB_ICONWARNING);
+		destroy_call_gate();
+		ReleaseMutex(mutex_hnd);
+		CloseHandle(mutex_hnd);
 		PAUSE;
 		return -1;
 	}
 
-	ReleaseMutex(mutex_hnd);
-	return 0;
 	//<test>
 	test();
 	//</test>
-	close_device();
-	unload_driver();
+	stop_call_gate();
+	destroy_call_gate();
 	ReleaseMutex(mutex_hnd);
-	PAUSE;
 	CloseHandle(mutex_hnd);
-	PAUSE;
 	MEM_LEAK_CHK;
+	PAUSE;
 	return 0;
 }
 
@@ -88,27 +90,16 @@ bool is_running()
 //<test>
 void test()
 {
-	char a[] = "aaaaaaaaaaaaaaaaaaaaaaa";
-	int i;
-	DWORD len;
-	write_device("hello\ntest\n", 11, &len);
-	PRINTF("%d|\n", len);
+	char* p;
+	p = NULL;
 	PAUSE;
-
-	for(i = 0; i < 100; i++) {
-		read_device(a, 6, &len);
-		a[6] = '\0';
-		PRINTF("%d|%s\n", len, a);
-		write_device("hello\n", 6, &len);
-		read_device(a, 5, &len);
-		a[5] = '\0';
-		PRINTF("%d|%s\n", len, a);
-		write_device("test\n", 5, &len);
-
-	}
-
-
-	//PAUSE;
+	PRINTF("Testing functions...\n");
+	/*k_enable_filter();
+	k_disable_filter();
+	PRINTF("k_set_base_dir returned %u\n.", k_set_base_dir(L"c:\\"));*/
+	PRINTF("k_add_virtual_path returned 0x%.8X\n", k_add_virtual_path(L"D:\\", L"aassddd", 1));
+	PAUSE;
+	//	*p = '\0';
 	return;
 }
 //</test>

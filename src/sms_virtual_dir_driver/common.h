@@ -18,10 +18,10 @@
 #ifndef COMMON_H_INCLUDE
 #define	COMMON_H_INCLUDE
 
-#include "debug.h"
 #include <ntifs.h>
 #include "mem.h"
 #include "sleep.h"
+#include "debug.h"
 #include "data_structure/pipe.h"
 
 VOID			get_object_name(

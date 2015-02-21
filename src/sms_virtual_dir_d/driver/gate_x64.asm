@@ -41,6 +41,7 @@ daemon_caller:
 				xor			rax,rax
 				mov			ax,[rsi]
 				sub			ax,8000h
+				imul		rax,8
 				add			rbx,rax
 				mov			rax,[rbx]
 				add			rsi,2

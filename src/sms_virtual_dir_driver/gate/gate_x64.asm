@@ -40,13 +40,14 @@ driver_caller:
 				mov			rbx,offset kernel_mode_func_table
 				xor			rax,rax
 				mov			ax,[rsi]
+				imul		rax,8
 				add			rbx,rax
 				mov			rax,[rbx]
 				add			rsi,2
 				;r12=Number of arguments
 				xor			r12,r12
 				mov			r12b,[rsi]
-				add			rsi,9
+				add			rsi,10
 				;r13=Number of arguments dealed
 				xor			r13,r13
 				push		rbp

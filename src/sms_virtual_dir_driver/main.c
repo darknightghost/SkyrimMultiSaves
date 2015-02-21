@@ -39,7 +39,7 @@ NTSTATUS DriverEntry(
 		return STATUS_UNSUCCESSFUL;
 	}
 
-	//Initialize filter device
+	/*//Initialize filter device
 	status = install_filter_device(DriverObject);
 
 	if(!NT_SUCCESS(status)) {
@@ -47,7 +47,7 @@ NTSTATUS DriverEntry(
 		destroy_control_device();
 		clean_dispatch_func(DriverObject);
 		return status;
-	}
+	}*/
 
 	//Start command interpreter
 	status = start_call_gate(DriverObject);
@@ -72,7 +72,7 @@ VOID DriverUnload(PDRIVER_OBJECT driver)
 
 	sleep(1000);
 	stop_call_gate();
-	uninstall_filter_device();
+	/*uninstall_filter_device();*/
 	clean_dispatch_func(driver);
 	KdPrint(("sms:Kernel module sms_virtual_dir_drive unloaded.\n"));
 	MEM_LEAK_CHK;

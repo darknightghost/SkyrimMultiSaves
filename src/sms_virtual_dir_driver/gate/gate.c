@@ -35,7 +35,8 @@ void*					kernel_mode_func_table[] = {
 	(void*)k_add_virtual_path,
 	(void*)k_change_virtual_path,
 	(void*)k_remove_virtual_path,
-	(void*)k_clean_all_virtual_path
+	(void*)k_clean_all_virtual_path,
+	(void*)k_close_call_gate
 };
 
 NTSTATUS start_call_gate(PDRIVER_OBJECT p_driver_object)
@@ -109,14 +110,17 @@ VOID call_gate_dispatch_thread(PVOID context)
 	parg_head p_arg_head;
 	char* p;
 	ret_pkg	call_ret;
+	ret_pkg ret_tmp;
 	UINT32 count;
 	NTSTATUS status;
+	SIZE_T length_written;
 
+	PASSIVE_LEVEL_ASSERT;
 	KdPrint(("sms:call_gate_dispatch thread started.\n"));
 	p_call_head = (pcall_pkg)head_buf;
 
 	while(run_flag) {
-
+		PASSIVE_LEVEL_ASSERT;
 		//Get call number
 		length_read = 0;
 
@@ -137,8 +141,9 @@ VOID call_gate_dispatch_thread(PVOID context)
 			//Get return value
 			length_read = 0;
 
-			while(length_read < sizeof(UINT64)) {
-				status = read_pipe(&write_buf, head_buf + length_read, sizeof(UINT64) - length_read, &len);
+			while(length_read < sizeof(ret_pkg) - sizeof(UINT16)) {
+				status = read_pipe(&write_buf, (char*)&ret_tmp + sizeof(UINT16) + length_read,
+				                   sizeof(ret_pkg) - sizeof(UINT16) - length_read, &len);
 
 				if(NT_SUCCESS(status)) {
 					length_read += len;
@@ -149,7 +154,7 @@ VOID call_gate_dispatch_thread(PVOID context)
 				}
 			}
 
-			ret_value = *(pret_ptr)head_buf;
+			ret_value = ret_tmp.ret;
 			KeSetEvent(&ret_event, 0, FALSE);
 			continue;
 
@@ -200,14 +205,14 @@ VOID call_gate_dispatch_thread(PVOID context)
 
 				//Write return value
 				KeWaitForSingleObject(&usermode_call_lock, Executive, KernelMode, FALSE, NULL);
-				write_pipe(&read_buf, &call_ret, sizeof(call_ret));
+				write_pipe(&read_buf, &call_ret, sizeof(call_ret), &length_written);
 				KeReleaseMutex(&usermode_call_lock, FALSE);
 				continue;
 			}
 
 			//Copy call head
-			memcpy(call_buf, p_call_head, sizeof(pcall_pkg));
-			p = call_buf + sizeof(pcall_pkg);
+			memcpy(call_buf, p_call_head, sizeof(call_pkg));
+			p = call_buf + sizeof(call_pkg);
 
 			//Get args
 			for(count = 0; count < p_call_head->arg_num; count++) {
@@ -215,10 +220,10 @@ VOID call_gate_dispatch_thread(PVOID context)
 				//Get arg head
 				length_read = 0;
 
-				while(length_read < sizeof(parg_head)) {
+				while(length_read < sizeof(arg_head)) {
 					status = read_pipe(&write_buf,
 					                   p,
-					                   sizeof(parg_head) - length_read,
+					                   sizeof(arg_head) - length_read,
 					                   &len);
 
 					if(NT_SUCCESS(status)) {
@@ -256,10 +261,14 @@ VOID call_gate_dispatch_thread(PVOID context)
 			MEM_CHK(call_buf);
 			//Call function
 			call_ret.ret.value = driver_caller(call_buf);
-			//Write return value
-			KeWaitForSingleObject(&usermode_call_lock, Executive, KernelMode, FALSE, NULL);
-			write_pipe(&read_buf, &call_ret, sizeof(call_ret));
-			KeReleaseMutex(&usermode_call_lock, FALSE);
+
+			if(p_call_head->call_number != K_CLOSE_CALL_GATE) {
+				//Write return value
+				KeWaitForSingleObject(&usermode_call_lock, Executive, KernelMode, FALSE, NULL);
+				write_pipe(&read_buf, &call_ret, sizeof(call_ret), &length_written);
+				KeReleaseMutex(&usermode_call_lock, FALSE);
+			}
+
 			free_memory(call_buf);
 
 		}
@@ -410,6 +419,26 @@ VOID k_clean_all_virtual_path()
 
 	KeReleaseSpinLock(&flag_lock, irql);
 	KdPrint(("sms:k_clean_all_virtual_path called.\n"));
+	thread_num--;
+	return;
+}
+
+VOID k_close_call_gate()
+{
+	KIRQL irql;
+
+	PASSIVE_LEVEL_ASSERT;
+	KeAcquireSpinLock(&flag_lock, &irql);
+
+	if(!run_flag) {
+		return;
+	}
+
+	thread_num++;
+
+	KeReleaseSpinLock(&flag_lock, irql);
+	disable_control_device();
+	KdPrint(("sms:k_close_call_gate called.\n"));
 	thread_num--;
 	return;
 }

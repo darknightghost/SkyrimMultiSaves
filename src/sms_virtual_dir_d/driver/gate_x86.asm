@@ -36,11 +36,12 @@ daemon_caller@4:
 				pushad
 				sub		esp,16
 				;esi=buf
-				mov		esi,[ebp-8]
+				mov		esi,[ebp+8]
 				;eax=Function address
 				xor		eax,eax
 				mov		ax,[esi]
 				sub		ax,8000h
+				imul	eax,4
 				mov		ebx,offset user_mode_func_table
 				add		ebx,eax
 				mov		eax,[ebx]
@@ -49,7 +50,7 @@ daemon_caller@4:
 				;edx=Number of arguments
 				xor		edx,edx
 				mov		dl,[esi]
-				add		esi,9
+				add		esi,10
 				;r13=Number of arguments dealed
 				xor		ecx,ecx
 				;while(ecx!=edx)
