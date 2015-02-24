@@ -61,6 +61,7 @@ VOID			k_close_call_gate();
 
 BOOLEAN			u_create_virtual_path(hvdir new_vdir_hnd, PWCHAR dest, UINT32 flag);
 BOOLEAN			u_change_virtual_path(hvdir vdir_hnd);
+BOOLEAN			u_remove_virtual_path(hvdir vdir_hnd);
 
 //Call number
 #define	K_ENABLE_FILTER				0x0000
@@ -74,6 +75,7 @@ BOOLEAN			u_change_virtual_path(hvdir vdir_hnd);
 
 #define	U_CREATE_VIRTUAL_PATH		0x8000
 #define	U_CHANGE_VIRTUAL_PATH		0x8001
+#define	U_REMOVE_VIRTUAL_PATH		0x8002
 
 //Flags
 #define	FLAG_DIRECTORY				0x00000001

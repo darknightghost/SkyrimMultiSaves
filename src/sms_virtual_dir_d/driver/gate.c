@@ -33,7 +33,8 @@ static	HANDLE				device_handle;
 
 void*						user_mode_func_table[] = {
 	u_create_virtual_path,
-	u_change_virtual_path
+	u_change_virtual_path,
+	u_remove_virtual_path
 };
 
 void*						daemon_caller(void* buf);
@@ -802,3 +803,22 @@ BOOLEAN u_change_virtual_path(hvdir vdir_hnd)
 	return TRUE;
 }
 
+BOOLEAN u_remove_virtual_path(hvdir vdir_hnd)
+{
+	if(!run_flag) {
+		return FALSE;
+	}
+
+	EnterCriticalSection(&flag_lock);
+
+	if(!run_flag) {
+		LeaveCriticalSection(&flag_lock);
+		return FALSE;
+	}
+
+	calling_count++;
+	LeaveCriticalSection(&flag_lock);
+	PRINTF("sms:u_remove_virtual_path called.vdir_hnd=0x%.8X.\n", vdir_hnd);
+	calling_count--;
+	return TRUE;
+}

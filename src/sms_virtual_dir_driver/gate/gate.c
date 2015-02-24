@@ -1,18 +1,18 @@
 ﻿/*
-Copyright 2015,暗夜幽灵 <darknightghost.cn@gmail.com>
+	Copyright 2015,暗夜幽灵 <darknightghost.cn@gmail.com>
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gate.h"
@@ -465,6 +465,25 @@ BOOLEAN u_create_virtual_path(hvdir new_vdir_hnd, PWCHAR dest, UINT32 flag)
 }
 
 BOOLEAN u_change_virtual_path(hvdir vdir_hnd)
+{
+	KIRQL irql;
+
+	PASSIVE_LEVEL_ASSERT;
+	KeAcquireSpinLock(&flag_lock, &irql);
+
+	if(!run_flag) {
+		return FALSE;
+	}
+
+	thread_num++;
+
+	KeReleaseSpinLock(&flag_lock, irql);
+	thread_num--;
+	UNREFERENCED_PARAMETER(vdir_hnd);
+	return TRUE;
+}
+
+BOOLEAN u_remove_virtual_path(hvdir vdir_hnd)
 {
 	KIRQL irql;
 
