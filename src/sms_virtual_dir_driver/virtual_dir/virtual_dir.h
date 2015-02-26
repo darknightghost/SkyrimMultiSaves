@@ -18,6 +18,7 @@
 #ifndef VIRTUAL_DIR_H_INCLUDE
 #define	VIRTUAL_DIR_H_INCLUDE
 #include "common.h"
+#include "../data_structure/list.h"
 #include "../../common/driver/gate_func_defines.h"
 
 typedef	struct _vpath_info {
@@ -25,16 +26,21 @@ typedef	struct _vpath_info {
 	PWCHAR		virtual_path;
 	PWCHAR		src;
 	UINT32		flag;
-	UINT32		count;
+	UINT32		reference;
 	BOOLEAN		destroy_flag;
+	BOOLEAN		initialized_flag;
 	KMUTEX		lock;
+	UINT32		child_list_ref;
 	list		child_list;
 	KMUTEX		child_list_lock;
 } vpath_info, *pvpath_info;
 
-VOID			init_virtual_dir();
-BOOLEAN			create_virtual_dir(PWCHAR path, UINT32 flag);
-BOOLEAN			remove_virtual_dir();
-VOID			clear_virtual_dir();
+VOID			init_virtual_path();
+BOOLEAN			add_virtual_path(PWCHAR path, PWCHAR src, UINT32 flag);
+pvpath_info		get_virtual_path_by_path(PWCHAR virtual_path);
+pvpath_info		get_virtual_path_by_hvdir(hvdir hnd);
+VOID			decrease_virtual_path_reference(pvpath_info p_info);
+BOOLEAN			remove_virtual_path();
+VOID			clear_virtual_path();
 
 #endif // !VIRTUAL_DIR_H_INCLUDE

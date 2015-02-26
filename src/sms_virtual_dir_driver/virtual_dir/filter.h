@@ -18,6 +18,7 @@
 #ifndef FILTER_H_INCLUDE
 #define	FILTER_H_INCLUDE
 
+#include "virtual_dir.h"
 #include "../common.h"
 
 #define		MAX_DEVNAME_LENGTH					64

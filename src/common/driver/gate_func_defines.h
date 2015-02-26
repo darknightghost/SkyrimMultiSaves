@@ -19,7 +19,17 @@
 #define	GATE_FUNC_DEFINES_H_INCLUDE
 
 //Types
+/*
+	Definetion of hvdir:
+	bits	32										16										0
+			---------------------------------------------------------------------------------
+			|										|Number used to differentiate virtual	|
+			|Hash of the virtual path.				|										|
+			|										|path with the same hash.				|
+			---------------------------------------------------------------------------------
+*/
 typedef	unsigned __int32		hvdir, *phvdir;
+
 typedef	struct _call_pkg_head {
 	UINT16		call_number;
 	UCHAR		arg_num;
@@ -59,7 +69,7 @@ BOOLEAN			k_remove_virtual_path(hvdir vdir_hnd);
 VOID			k_clean_all_virtual_path();
 VOID			k_close_call_gate();
 
-BOOLEAN			u_create_virtual_path(hvdir new_vdir_hnd, PWCHAR dest, UINT32 flag);
+BOOLEAN			u_create_virtual_path(PWCHAR p_path, UINT32 flag);
 BOOLEAN			u_change_virtual_path(hvdir vdir_hnd);
 BOOLEAN			u_remove_virtual_path(hvdir vdir_hnd);
 
@@ -93,5 +103,9 @@ BOOLEAN			u_remove_virtual_path(hvdir vdir_hnd);
 
 //Marcos
 #define	IS_KERNERL_MODE_CALL_NUMBER(call_num)	((call_num) < 0x8000)
+#define	GET_HASH_FROM_HVDIR(v_path_hnd)			((UINT16)((v_path_hnd) >> 16))
+#define	GET_NUM_FROM_HVDIR(v_path_hnd)			((UINT16)(v_path_hnd & 0x0000FFFF))
+#define	GET_HASH_ADDR_FROM_PHVDIR(p_v_path_hnd)	(((UINT16*)(p_v_path_hnd)) + 1)
+#define	GET_NUM_ADDR_FROM_PHVDIR(p_v_path_hnd)	((UINT16*)(p_v_path_hnd))
 
 #endif // !GATE_FUNC_DEFINES_H_INCLUDE

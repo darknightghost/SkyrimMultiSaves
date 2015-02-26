@@ -763,7 +763,7 @@ VOID k_close_call_gate()
 	return;
 }
 
-BOOLEAN u_create_virtual_path(hvdir new_vdir_hnd, PWCHAR dest, UINT32 flag)
+BOOLEAN u_create_virtual_path(PWCHAR p_path, UINT32 flag)
 {
 	if(!run_flag) {
 		return FALSE;

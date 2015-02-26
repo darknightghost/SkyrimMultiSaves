@@ -29,6 +29,7 @@ typedef		void (*item_destroyer)(void*);
 
 VOID			item_only_delete_func(void* p_item);
 plist_node		list_add_item(list* p_list, void* p_item);
+plist_node		list_insert_item(list* p_list, plist_node p_insert_before, void* p_item);
 VOID			list_destroy(list* p_list, item_destroyer item_destroy_func);
 BOOLEAN			list_remove_item(list* p_list, void* p_item);
 PVOID			list_remove_item_by_maching(list* p_list, BOOLEAN(*condition)(PVOID p_item, PVOID arg), PVOID p_arg);

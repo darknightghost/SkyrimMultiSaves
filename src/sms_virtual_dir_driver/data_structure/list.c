@@ -70,6 +70,48 @@ plist_node list_add_item(list* p_list, void* p_item)
 	return p_new_node;
 }
 
+plist_node list_insert_item(list* p_list, plist_node p_insert_before, void* p_item)
+{
+	plist_node p_new_node;
+
+	//If the list is empty
+	if(*p_list == NULL
+	   && p_insert_before == NULL) {
+		*p_list = get_memory(sizeof(list_node), *(PULONG)"sms", NonPagedPool);
+
+		if(p_list == NULL) {
+			return NULL;
+		}
+
+		(*p_list)->p_next = (*p_list)->p_prev = *p_list;
+		(*p_list)->p_item = p_item;
+		return *p_list;
+
+	} else if(p_insert_before == NULL) {
+		p_new_node = list_add_item(p_list, p_item);
+		//Else
+
+	} else {
+		p_new_node = get_memory(sizeof(list_node), *(PULONG)"sms", NonPagedPool);
+
+		if(p_list == NULL) {
+			return NULL;
+		}
+
+		p_new_node->p_prev = p_insert_before->p_prev;
+		p_new_node->p_next = p_insert_before;
+		p_insert_before->p_prev->p_next = p_new_node;
+		p_insert_before->p_prev = p_new_node;
+		p_new_node->p_item = p_item;
+
+		if(p_insert_before == p_list) {
+			*p_list = p_new_node;
+		}
+	}
+
+	return p_new_node;
+}
+
 VOID list_destroy(list* p_list, item_destroyer item_destroy_func)
 {
 	plist_node	p_node, p_next_node;

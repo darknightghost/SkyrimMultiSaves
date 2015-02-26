@@ -443,7 +443,7 @@ VOID k_close_call_gate()
 	return;
 }
 
-BOOLEAN u_create_virtual_path(hvdir new_vdir_hnd, PWCHAR dest, UINT32 flag)
+BOOLEAN u_create_virtual_path(PWCHAR p_path, UINT32 flag)
 {
 	KIRQL irql;
 
@@ -458,8 +458,7 @@ BOOLEAN u_create_virtual_path(hvdir new_vdir_hnd, PWCHAR dest, UINT32 flag)
 
 	KeReleaseSpinLock(&flag_lock, irql);
 	thread_num--;
-	UNREFERENCED_PARAMETER(new_vdir_hnd);
-	UNREFERENCED_PARAMETER(dest);
+	UNREFERENCED_PARAMETER(p_path);
 	UNREFERENCED_PARAMETER(flag);
 	return TRUE;
 }
