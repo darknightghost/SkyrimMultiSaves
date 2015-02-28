@@ -27,7 +27,8 @@ typedef	struct list_node_ {
 
 typedef		void (*item_destroyer)(void*);
 
-VOID			item_only_delete_func(void* p_item);
+VOID			free_item_call_back(void* p_item);
+VOID			do_nothing_call_back(void* p_item);
 plist_node		list_add_item(list* p_list, void* p_item);
 plist_node		list_insert_item(list* p_list, plist_node p_insert_before, void* p_item);
 VOID			list_destroy(list* p_list, item_destroyer item_destroy_func);

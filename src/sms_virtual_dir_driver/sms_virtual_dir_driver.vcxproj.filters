@@ -41,6 +41,12 @@
     <Filter Include="common\driver">
       <UniqueIdentifier>{6446861b-41ed-48b3-86ad-1e322c5f0d76}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\virtual_dir\filter_irp_dealers">
+      <UniqueIdentifier>{2ac9da97-f7bd-4a0e-bcf3-9c3c1fd6120f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\virtual_dir\filter_irp_dealers">
+      <UniqueIdentifier>{3d5dc966-e401-45a3-8f08-658d261eba63}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Inf Include="sms_virtual_dir_driver.inf">
@@ -90,6 +96,24 @@
     <ClCompile Include="debug.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="virtual_dir\filter_irp_dealers\dir.c">
+      <Filter>Source Files\virtual_dir\filter_irp_dealers</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_dir\filter_irp_dealers\read.c">
+      <Filter>Source Files\virtual_dir\filter_irp_dealers</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_dir\filter_irp_dealers\write.c">
+      <Filter>Source Files\virtual_dir\filter_irp_dealers</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_dir\filter_irp_dealers\remove.c">
+      <Filter>Source Files\virtual_dir\filter_irp_dealers</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_dir\filter_irp_dealers\rename.c">
+      <Filter>Source Files\virtual_dir\filter_irp_dealers</Filter>
+    </ClCompile>
+    <ClCompile Include="virtual_dir\filter_irp_dealers\open_close.c">
+      <Filter>Source Files\virtual_dir\filter_irp_dealers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -136,6 +160,24 @@
     </ClInclude>
     <ClInclude Include="..\common\driver\gate_func_defines.h">
       <Filter>common\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_dir\filter_irp_dealers\dir.h">
+      <Filter>Header Files\virtual_dir\filter_irp_dealers</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_dir\filter_irp_dealers\read.h">
+      <Filter>Header Files\virtual_dir\filter_irp_dealers</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_dir\filter_irp_dealers\write.h">
+      <Filter>Header Files\virtual_dir\filter_irp_dealers</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_dir\filter_irp_dealers\rename.h">
+      <Filter>Header Files\virtual_dir\filter_irp_dealers</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_dir\filter_irp_dealers\remove.h">
+      <Filter>Header Files\virtual_dir\filter_irp_dealers</Filter>
+    </ClInclude>
+    <ClInclude Include="virtual_dir\filter_irp_dealers\open_close.h">
+      <Filter>Header Files\virtual_dir\filter_irp_dealers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

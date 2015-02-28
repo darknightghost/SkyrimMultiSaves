@@ -22,24 +22,30 @@
 #include "../../common/driver/gate_func_defines.h"
 
 typedef	struct _vpath_info {
-	hvdir		node_hnd;
-	PWCHAR		virtual_path;
-	PWCHAR		src;
-	UINT32		flag;
-	UINT32		reference;
-	BOOLEAN		destroy_flag;
-	BOOLEAN		initialized_flag;
-	KMUTEX		lock;
-	UINT32		child_list_ref;
-	list		child_list;
-	KMUTEX		child_list_lock;
+	hvdir					node_hnd;
+	struct _vpath_info*		p_parent;
+	PWCHAR					virtual_path;
+	PWCHAR					src;
+	UINT32					flag;
+	UINT32					reference;
+	UINT32					open_status;
+	BOOLEAN					destroy_flag;
+	BOOLEAN					initialized_flag;
+	KMUTEX					lock;
+	UINT32					child_list_ref;
+	list					child_list;
+	KMUTEX					child_list_lock;
 } vpath_info, *pvpath_info;
 
 VOID			init_virtual_path();
-BOOLEAN			add_virtual_path(PWCHAR path, PWCHAR src, UINT32 flag);
+BOOLEAN			set_root_path(PWCHAR root_path);
+BOOLEAN			is_virtual_path(PWCHAR path);
+hvdir			add_virtual_path(PWCHAR path, PWCHAR src, UINT32 flag);
 pvpath_info		get_virtual_path_by_path(PWCHAR virtual_path);
 pvpath_info		get_virtual_path_by_hvdir(hvdir hnd);
 VOID			decrease_virtual_path_reference(pvpath_info p_info);
+BOOLEAN			increase_virtual_path_child_reference(pvpath_info p_info);
+VOID			decrease_virtual_path_child_reference(pvpath_info p_info);
 BOOLEAN			remove_virtual_path();
 VOID			clear_virtual_path();
 

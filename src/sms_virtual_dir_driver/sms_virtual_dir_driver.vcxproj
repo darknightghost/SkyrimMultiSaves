@@ -339,6 +339,12 @@
     <ClCompile Include="mem.c" />
     <ClCompile Include="sleep.c" />
     <ClCompile Include="virtual_dir\filter.c" />
+    <ClCompile Include="virtual_dir\filter_irp_dealers\dir.c" />
+    <ClCompile Include="virtual_dir\filter_irp_dealers\open_close.c" />
+    <ClCompile Include="virtual_dir\filter_irp_dealers\read.c" />
+    <ClCompile Include="virtual_dir\filter_irp_dealers\remove.c" />
+    <ClCompile Include="virtual_dir\filter_irp_dealers\rename.c" />
+    <ClCompile Include="virtual_dir\filter_irp_dealers\write.c" />
     <ClCompile Include="virtual_dir\fs_filter.c" />
     <ClCompile Include="virtual_dir\virtual_dir.c" />
     <ClCompile Include="virtual_dir\volume_filter.c" />
@@ -356,6 +362,12 @@
     <ClInclude Include="mem.h" />
     <ClInclude Include="sleep.h" />
     <ClInclude Include="virtual_dir\filter.h" />
+    <ClInclude Include="virtual_dir\filter_irp_dealers\dir.h" />
+    <ClInclude Include="virtual_dir\filter_irp_dealers\open_close.h" />
+    <ClInclude Include="virtual_dir\filter_irp_dealers\read.h" />
+    <ClInclude Include="virtual_dir\filter_irp_dealers\remove.h" />
+    <ClInclude Include="virtual_dir\filter_irp_dealers\rename.h" />
+    <ClInclude Include="virtual_dir\filter_irp_dealers\write.h" />
     <ClInclude Include="virtual_dir\fs_filter.h" />
     <ClInclude Include="virtual_dir\virtual_dir.h" />
     <ClInclude Include="virtual_dir\volume_filter.h" />

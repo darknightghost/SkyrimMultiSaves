@@ -18,6 +18,12 @@
 #include "volume_filter.h"
 #include "../data_structure/list.h"
 #include "../device.h"
+#include "filter_irp_dealers/dir.h"
+#include "filter_irp_dealers/read.h"
+#include "filter_irp_dealers/remove.h"
+#include "filter_irp_dealers/rename.h"
+#include "filter_irp_dealers/write.h"
+#include "filter_irp_dealers/open_close.h"
 #include <ntdddisk.h>
 
 static	list				vol_filter_dev_list = NULL;
@@ -377,6 +383,11 @@ NTSTATUS dispatch_func(PDEVICE_OBJECT p_device, PIRP p_irp)
 
 		//Dispatch IRP
 		switch(p_irpsp->MajorFunction) {
+		case IRP_MJ_CREATE:
+		case IRP_MJ_DIRECTORY_CONTROL:
+			status = dispatch_func_dir_control(p_device, p_irp, p_irpsp);
+			break;
+
 		default:
 			status = pass_through(p_device, p_irp);
 		}

@@ -36,7 +36,7 @@ NTSTATUS install_filter_device(PDRIVER_OBJECT p_driver_object)
 	p_sms_driver_object = p_driver_object;
 
 	init_volume_filter_module();
-	init_virtual_dir();
+	init_virtual_path();
 	return install_fs_filter_device(p_driver_object);
 }
 

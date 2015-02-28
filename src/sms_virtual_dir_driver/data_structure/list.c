@@ -18,9 +18,15 @@
 #include "list.h"
 #include "../mem.h"
 
-VOID item_only_delete_func(void* p_item)
+VOID free_item_call_back(void* p_item)
 {
 	free_memory(p_item);
+	return;
+}
+
+VOID do_nothing_call_back(void* p_item)
+{
+	UNREFERENCED_PARAMETER(p_item);
 	return;
 }
 
@@ -104,7 +110,7 @@ plist_node list_insert_item(list* p_list, plist_node p_insert_before, void* p_it
 		p_insert_before->p_prev = p_new_node;
 		p_new_node->p_item = p_item;
 
-		if(p_insert_before == p_list) {
+		if(p_insert_before == *p_list) {
 			*p_list = p_new_node;
 		}
 	}

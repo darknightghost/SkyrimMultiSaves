@@ -778,7 +778,7 @@ BOOLEAN u_create_virtual_path(PWCHAR p_path, UINT32 flag)
 
 	calling_count++;
 	LeaveCriticalSection(&flag_lock);
-	PRINTF("sms:u_create_virtual_path called.new_vdir_hnd=0x%.8X,dest=\"%ws\",flag=0x%.8X\n", new_vdir_hnd, dest, flag);
+	PRINTF("sms:u_create_virtual_path called.dest=\"%ws\",flag=0x%.8X\n", p_path, flag);
 	calling_count--;
 	return TRUE;
 }
